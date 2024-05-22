@@ -7,13 +7,13 @@ import zipfile
 import tempfile
 from random import randint
 from datetime import datetime, timezone
-from ..flow import Flow
 
+from ..flow import Flow
 
 def get_timestamp() -> str:
     """
     Generates a timestamp in ISO 8601 format appended with a random single digit, suitable for use in file naming or logging.
-    
+
     Returns:
         str: The generated timestamp string in UTC.
     """
@@ -28,10 +28,10 @@ class Resource:
     """
 
     def __init__(self, type: str, suggested_creation_type: str,
-                 creation_type: str, configurable_by: str, hierarchy: str, display_name: str, icon_uri: str = None):
+                 creation_type: str|None, configurable_by: str, hierarchy: str, display_name: str, icon_uri: str|None = None):
         """
         Initializes a new resource with specified attributes.
-        
+
         Args:
             type (str): The type of the resource.
             suggested_creation_type (str): Suggested method for resource creation.
@@ -52,11 +52,12 @@ class Resource:
         self.hierarchy = hierarchy
         self.display_name = display_name
         self.icon_uri = icon_uri
+        self.__connection_reference_logical_name = None
 
     def set_api_info(self, id: str, name: str):
         """
         Sets the API information for the resource.
-        
+
         Args:
             id (str): The unique identifier of the API.
             name (str): The name of the API.
@@ -67,7 +68,7 @@ class Resource:
     def set_dependencies(self, resources: List):
         """
         Sets dependencies of this resource to other resources.
-        
+
         Args:
             resources (List[Resource]): A list of Resource instances that this resource depends on.
         """
@@ -75,39 +76,53 @@ class Resource:
             self.dependencies.append(resource.uuid)
         self.dependencies = list(set(self.dependencies))
 
-    def export(self) -> dict:
+    def set_connection_reference_logical_name(self, name: str):
+        self.__connection_reference_logical_name = name
+
+    def get_connection_reference_logical_name(self):
+        return self.__connection_reference_logical_name
+
+    def export(self, embedded: bool = False) -> dict:
         """
         Exports the resource details as a dictionary suitable for serialization.
-        
+
         Returns:
             dict: A dictionary containing all relevant details of the resource.
         """
         d = {}
-        if self.id:
-            d["id"] = self.id
-        if self.name:
-            d["name"] = self.name
-        d["type"] = self.type
-        d["suggestedCreationType"] = self.suggested_creation_type
-        if self.creation_type:
-            d["creationType"] = self.creation_type
-        details = {}
-        details["displayName"] = self.display_name
-        if self.icon_uri:
-            details["iconUri"] = self.icon_uri
-        d["details"] = details
-        d["configurableBy"] = self.configurable_by
-        d["hierarchy"] = self.hierarchy
-        d["dependsOn"] = self.dependencies
+
+        if not embedded:
+            if self.id:
+                d["id"] = self.id
+            if self.name:
+                d["name"] = self.name
+            d["type"] = self.type
+            d["suggestedCreationType"] = self.suggested_creation_type
+            if self.creation_type:
+                d["creationType"] = self.creation_type
+            details = {}
+            details["displayName"] = self.display_name
+            if self.icon_uri:
+                details["iconUri"] = self.icon_uri
+            d["details"] = details
+            d["configurableBy"] = self.configurable_by
+            d["hierarchy"] = self.hierarchy
+            d["dependsOn"] = self.dependencies
+        else:
+            d["runtimeSource"] = "embedded"
+            d["connection"] = {}
+            d["connection"]["connectionReferenceLogicalName"] = self.__connection_reference_logical_name
+            d["api"] = {}
+            d["api"]["name"] = self.name
         return d
 
     def __eq__(self, __o: object) -> bool:
         """
         Compares this resource with another for equality based on UUID.
-        
+
         Args:
             __o (object): The object to compare.
-        
+
         Returns:
             bool: True if the objects are the same resource, False otherwise.
         """
@@ -119,7 +134,7 @@ class Resource:
     def __hash__(self):
         """
         Returns a hash based on the resource's UUID.
-        
+
         Returns:
             int: The hash of the resource.
         """
@@ -142,7 +157,7 @@ class Package:
     └── manifest.json
     """
 
-    def __init__(self, display_name: str, flow: Flow):
+    def __init__(self, display_name: str, flow: Flow, languagecode: int = 1033):
         """
         Initializes the package with a specific flow and a display name.
 
@@ -151,13 +166,26 @@ class Package:
             flow (Flow): The Flow object containing the workflow logic and configurations.
         """
         self.display_name = display_name
+        self.uuid = uuid.uuid4().__str__()
         self.__apis: List[Resource] = []
         self.__connections: List[Resource] = []
         self.__api_connection_map: Dict[Resource, Resource] = {}
         self.__exist_connections: dict = {}
+        self.__localized_names: Dict[int, str] = {}
+
+        self.add_localized_name(self.display_name, languagecode)
 
         self.flow = flow
         self.__set_flow_resource()
+
+    def get_api_connections(self) -> list[Resource]:
+        return self.__apis
+
+    def get_localized_names(self) -> Dict[int, str]:
+        return self.__localized_names
+
+    def add_localized_name(self, description: str, languagecode: int):
+        self.__localized_names[languagecode] = description
 
     def __set_flow_resource(self):
         """
@@ -167,7 +195,7 @@ class Package:
             "Microsoft.Flow/flows", "New", "Existing, New, Update", "User", "Root", self.display_name)
 
 
-    def set_flow_management_connector(self, connection_name: str = None):
+    def set_flow_management_connector(self, connection_name: str|None = None):
         """
         Sets up a connector for the PowerAutomate Management API with optional connection naming.
 
@@ -187,7 +215,7 @@ class Package:
         # Connectionの依存APIの設定
         connection.set_dependencies([api])
 
-        # 既存のconenction情報の設定
+        # 既存のconnection情報の設定
         if connection_name:
             self.__exist_connections["shared_flowmanagement"] = {
                 "connectionName": connection_name,
@@ -199,7 +227,7 @@ class Package:
         self.__connections.append(connection)
         self.__api_connection_map[connection] = api
 
-    def set_dropbox_connector(self, connection_name: str = None):
+    def set_dropbox_connector(self, connection_name: str|None = None):
         """
         Sets up a connector for the Dropbox API with optional connection naming.
 
@@ -231,7 +259,7 @@ class Package:
         self.__connections.append(connection)
         self.__api_connection_map[connection] = api
 
-    def set_teams_connector(self, connection_name: str = None):
+    def set_teams_connector(self, connection_name: str|None = None):
         """
         Sets up a connector for the Teams API with optional connection naming.
 
@@ -263,7 +291,7 @@ class Package:
         self.__connections.append(connection)
         self.__api_connection_map[connection] = api
 
-    def set_sharepoint_connector(self, connection_name: str = None):
+    def set_sharepoint_connector(self, connection_name: str|None = None):
         """
         Sets up a connector for the Sharepoint API with optional connection naming.
 
@@ -295,7 +323,7 @@ class Package:
         self.__connections.append(connection)
         self.__api_connection_map[connection] = api
 
-    def set_outlook365_connector(self, connection_name: str = None):
+    def set_outlook365_connector(self, connection_name: str|None = None):
         """
         Sets up a connector for the Outlook365 API with optional connection naming.
 
@@ -321,6 +349,70 @@ class Package:
                 "connectionName": connection_name,
                 "source": "Invoker",
                 "id": "/providers/Microsoft.PowerApps/apis/shared_office365",
+                "tier": "NotSpecified"
+            }
+        self.__apis.append(api)
+        self.__connections.append(connection)
+        self.__api_connection_map[connection] = api
+
+    def set_forms_connector(self, connection_name: str|None = None):
+        """
+        Sets up a connector for the Microsoft Forms API with optional connection naming.
+
+        Args:
+            connection_name (str, optional): The name to assign to the connection if it already exists.
+        """
+        # Outlook 365 API Settings
+        api = Resource("Microsoft.PowerApps/apis", "Existing", None, "System", "Child", "Microsoft Forms",
+                       "https://connectoricons-prod.azureedge.net/releases/v1.0.1686/1.0.1686.3695/microsoftforms/icon.png")
+        api.set_api_info(
+            "/providers/Microsoft.PowerApps/apis/shared_microsoftforms", "shared_microsoftforms")
+
+        # Setting up Outlook 365 Connection
+        connection = Resource("Microsoft.PowerApps/apis/connections", "Existing", "Existing", "User", "Child", "Microsoft Forms",
+                              "https://connectoricons-prod.azureedge.net/releases/v1.0.1686/1.0.1686.3695/microsoftforms/icon.png")
+
+        # Setting dependency of connection
+        connection.set_dependencies([api])
+
+        # Setting existing connection information
+        if connection_name:
+            self.__exist_connections["shared_microsoftforms"] = {
+                "connectionName": connection_name,
+                "source": "Invoker",
+                "id": "/providers/Microsoft.PowerApps/apis/shared_microsoftforms",
+                "tier": "NotSpecified"
+            }
+        self.__apis.append(api)
+        self.__connections.append(connection)
+        self.__api_connection_map[connection] = api
+
+    def set_excel_connector(self, connection_name: str|None = None):
+        """
+        Sets up a connector for the Excel Online (Business) API with optional connection naming.
+
+        Args:
+            connection_name (str, optional): The name to assign to the connection if it already exists.
+        """
+        # Outlook 365 API Settings
+        api = Resource("Microsoft.PowerApps/apis", "Existing", None, "System", "Child", "Excel Online (Business)",
+                       "https://connectoricons-prod.azureedge.net/releases/v1.0.1680/1.0.1680.3652/excelonlinebusiness/icon.png")
+        api.set_api_info(
+            "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness", "shared_microsoftforms")
+
+        # Setting up Outlook 365 Connection
+        connection = Resource("Microsoft.PowerApps/apis/connections", "Existing", "Existing", "User", "Child", "Excel Online (Business)",
+                              "https://connectoricons-prod.azureedge.net/releases/v1.0.1680/1.0.1680.3652/excelonlinebusiness/icon.png")
+
+        # Setting dependency of connection
+        connection.set_dependencies([api])
+
+        # Setting existing connection information
+        if connection_name:
+            self.__exist_connections["shared_microsoftforms"] = {
+                "connectionName": connection_name,
+                "source": "Invoker",
+                "id": "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness",
                 "tier": "NotSpecified"
             }
         self.__apis.append(api)
@@ -382,20 +474,35 @@ class Package:
         }
         return d
 
-    def export_definition(self):
+    def export_definition(self, embedded: bool = False):
         d = {}
-        d["name"] = uuid.uuid4().__str__()
-        d["id"] = "/providers/Microsoft.Flow/flows/" + d["name"]
-        d["type"] = "Microsoft.Flow/flows"
+
         properties = {}
-        properties["apiId"] = "/providers/Microsoft.PowerApps/apis/shared_logicflows"
-        properties["displayName"] = self.display_name
         properties["definition"] = self.flow.export()
-        properties["connectionReferences"] = self.__exist_connections
-        properties["flowFailureAlertSubscribed"] = False
-        properties["isManaged"] = False
+
+        if not embedded:
+            d["name"] = self.uuid
+            d["id"] = "/providers/Microsoft.Flow/flows/" + d["name"]
+            d["type"] = "Microsoft.Flow/flows"
+            properties["apiId"] = "/providers/Microsoft.PowerApps/apis/shared_logicflows"
+            properties["displayName"] = self.display_name
+            properties["connectionReferences"] = self.__exist_connections
+            properties["flowFailureAlertSubscribed"] = False
+            properties["isManaged"] = False
+        else:
+            properties["connectionReferences"] = {}
+            for api in self.__apis:
+                export = api.export(True)
+                properties["connectionReferences"][export["api"]["name"]] = export
+
+            d["schemaVersion"] = "1.0.0.0"
+
+
         d["properties"] = properties
+
         return d
+
+
 
     def __write_json_file(self, path: str, content: dict):
         with open(path, 'w') as f:

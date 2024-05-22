@@ -3,7 +3,7 @@ from .base import BaseAction
 
 class AddToTimeAction(BaseAction):
     """
-    Class to define an action that adds a specified interval of time to a base time. 
+    Class to define an action that adds a specified interval of time to a base time.
     This is commonly used in workflows to calculate future or past times based on a given base time.
 
     Attributes:

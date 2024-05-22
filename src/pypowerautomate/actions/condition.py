@@ -116,7 +116,7 @@ def tokenizer(s):
                 token = ''
             end_of_string = s.find('\"', i + 1)
             if end_of_string == -1:
-                raise ValueError("Unterminated string literal")
+                raise ValueError(f"Unterminated string literal in expression {s}")
             token = s[i:end_of_string+1]  # Include the quotes
             tokens.append(token)
             token = ''
@@ -131,7 +131,7 @@ def tokenizer(s):
                 tokens.append(token)
                 token = ''
         else:
-            raise ValueError("Unknown character: " + char)
+            raise ValueError(f"Unknown character: {char} in expression {s}")
 
         i += 1
     if token != '':
@@ -146,7 +146,7 @@ def infix_to_rpn(tokens):
     """
     Converts an infix expression to reverse Polish notation (RPN).
 
-    This function takes a list of tokens representing an infix expression and converts it to a list of tokens in reverse Polish notation (RPN). 
+    This function takes a list of tokens representing an infix expression and converts it to a list of tokens in reverse Polish notation (RPN).
     The conversion is done using the shunting-yard algorithm.
 
     Args:
@@ -183,7 +183,7 @@ def create_ast(rpn_tokens):
     """
     Constructs an abstract syntax tree (AST) from a list of tokens in reverse Polish notation (RPN).
 
-    This function takes a list of tokens in RPN and constructs an abstract syntax tree (AST) representing the expression. 
+    This function takes a list of tokens in RPN and constructs an abstract syntax tree (AST) representing the expression.
     The AST is represented as a dictionary with the following structure:
     - Literal: {'type': 'Literal', 'value': value}
     - BinaryExpression: {'type': 'BinaryExpression', 'operator': operator, 'left': left_node, 'right': right_node}

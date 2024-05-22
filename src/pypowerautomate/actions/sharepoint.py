@@ -711,6 +711,7 @@ class SharepointExtractFolderV2Action(BaseAction):
 
         return d
 
+
 METHODS = set(["GET", "PUT", "POST", "PATCH", "DELETE"])
 
 class SharepointHTTPRequestAction(BaseAction):
@@ -724,7 +725,7 @@ class SharepointHTTPRequestAction(BaseAction):
         "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
     }
 
-    def __init__(self, name: str, dataset: str, method: str, uri: str, headers: dict = None, body: str = None):
+    def __init__(self, name: str, dataset: str, method: str, uri: str, headers: dict|None = None, body: str|None = None):
         """
         Initializes a new Sharepoint HTTP Request with specified parameters.
 
@@ -736,19 +737,19 @@ class SharepointHTTPRequestAction(BaseAction):
             headers (dict, optional): The headers to be used with this HTTP request.
             body (str, optional): The body of the HTTP request.
         """
-        
+
         super().__init__(name)
         self.type = "OpenApiConnection"
 
         self.dataset: str = dataset
 
         if method not in METHODS:
-            raise ValueError("Unsupported method type")
+            raise ValueError(f"Unsupported method type {method} in action {name}. Must be one of the following: {METHODS}")
 
         self.method: str = method
         self.uri: str = uri
-        self.headers: dict = headers
-        self.body: str = body
+        self.headers: dict|None = headers
+        self.body: str|None = body
 
     def export(self) -> Dict:
         """
@@ -759,7 +760,7 @@ class SharepointHTTPRequestAction(BaseAction):
         """
 
         inputs = {}
-        parameters = {} 
+        parameters = {}
 
         parameters["dataset"] = self.dataset
         parameters["parameters/method"] = self.method
@@ -770,36 +771,6 @@ class SharepointHTTPRequestAction(BaseAction):
             parameters["parameters/body"] = self.body
 
         inputs["host"] = SharepointHTTPRequestAction.connection_host
-        inputs["parameters"] = parameters
-
-        d = {}
-        d["metadata"] = self.metadata
-        d["type"] = self.type
-        d["runAfter"] = self.runafter
-        d["inputs"] = inputs
-
-        return d
-
-class SharepointXxxxxxAction(BaseAction):
-    connection_host = {
-        "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",
-        "connectionName": "shared_sharepointonline",
-        "operationId": "xxxxxx"
-    }
-
-    def __init__(self, name: str, xxxxxx: str):
-        super().__init__(name)
-        self.type = "OpenApiConnection"
-
-        self.xxxxxx: str = xxxxxx
-
-    def export(self) -> Dict:
-        inputs = {}
-        parameters = {}
-
-        parameters["xxxxxx"] = self.xxxxxx
-
-        inputs["host"] = SharepointXxxxxxAction.connection_host
         inputs["parameters"] = parameters
 
         d = {}

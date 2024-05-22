@@ -1,1 +1,1 @@
-from .package import Package
+from .package import Package, Resource

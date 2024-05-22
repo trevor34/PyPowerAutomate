@@ -52,7 +52,10 @@ coverage.xml
 
 # powerautomate artifacts
 /*.zip
-Microsoft.Flow/* 
+Microsoft.Flow/*
 
 # html contents
 /docs/*
+
+# Visual Studio Code files
+.vscode/

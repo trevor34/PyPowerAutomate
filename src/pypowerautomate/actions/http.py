@@ -30,13 +30,13 @@ class HttpAction(BaseAction):
         super().__init__(name)
         self.type = "Http"
         if method not in METHODS:
-            raise ValueError("Unsupported method type")
+            raise ValueError(f"Unsupported method type {method} in action {name}. Must be one of the following: {METHODS}")
         self.method: str = method
         self.uri: str = uri
-        self.queries: Dict[str, str] = None
-        self.body: str = None
-        self.headers: Dict[str, str] = None
-        self.cookie: str = None
+        self.queries: Dict[str, str]|None = None
+        self.body: str|None = None
+        self.headers: Dict[str, str]|None = None
+        self.cookie: str|None = None
 
     def set_body(self, body: str):
         """

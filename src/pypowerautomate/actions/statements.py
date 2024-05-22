@@ -17,8 +17,8 @@ class IfStatement(BaseAction):
         super().__init__(name)
         self.type: str = "If"
         self.condition: Condition = condition
-        self.true_actions: Actions = None
-        self.false_actions: Actions = None
+        self.true_actions: Actions|None = None
+        self.false_actions: Actions|None = None
 
     def set_true_actions(self, actions: Actions):
         """
@@ -75,7 +75,7 @@ class ForeachStatement(BaseAction):
         super().__init__(name)
         self.type: str = "Foreach"
         self.foreach: str = foreach
-        self.actions: Actions = None
+        self.actions: Actions|None = None
 
     def set_actions(self, actions: Actions):
         """
@@ -98,7 +98,8 @@ class ForeachStatement(BaseAction):
         d["type"] = self.type
         d["runAfter"] = self.runafter
         d["foreach"] = self.foreach
-        d["actions"] = self.actions.export()
+        if self.actions != None:
+            d["actions"] = self.actions.export()
         return d
 
 

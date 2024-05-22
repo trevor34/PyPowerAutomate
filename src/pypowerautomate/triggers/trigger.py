@@ -2,6 +2,17 @@ from typing import List, Dict
 import uuid
 
 class TriggerInputVariableType:
+    """
+    Variables defined for trigger inputs. Contains the following types:
+    Text - A string of text
+    Yes/No - A boolean value of "yes" or "no". Produces a toggle switch on a manual start
+    File - A file input
+    Email - An email address
+    Number - A number
+    Date - A date. Produces a calendar when used on a manual start
+    Multi-Select - A type that allows for multiple selections.
+    Dropdown - A type that produces a dropdown when ran manually.
+    """
     text = {"name": "Text", "type": "string", "hint": "TEXT"}
     yes_no = {"name": "Yes/No", "type": "boolean", "hint": "BOOLEAN"}
     file = {"name": "File", "type": "object", "hint": "FILE"}
@@ -13,6 +24,7 @@ class TriggerInputVariableType:
     # You can see them by selecting the "Text" type and clicking the 3 dots menu
     multi_select = {"name": "Multi-Select", "type": "array", "hint": "TEXT"}
     dropdown = {"name": "Dropdown", "type": "string", "hint": "TEXT"}
+
 
 class BaseTrigger:
     """
@@ -35,7 +47,7 @@ class BaseTrigger:
         self.trigger_name: str = name
         self.metadata: Dict = {}
         self.metadata["operationMetadataId"] = uuid.uuid4().__str__()
-        self.type: str = None
+        self.type: str|None = None
 
     def export(self) -> Dict:
         """
@@ -157,6 +169,7 @@ class ManualTrigger(BaseTrigger):
             name (str): The name of the trigger.
         """
         super().__init__(name)
+
         self.type = "Request"
         self.kind = "Button"
         self.inputs = {"schema": {"type": "object", "properties": {}, "required": []}}
@@ -174,11 +187,11 @@ class ManualTrigger(BaseTrigger):
         """
 
         if title in self.inputs["schema"]["properties"]:
-            raise Exception(f"Title of input must be unique. Duplicate title {title} in trigger {self.trigger_name}")
+            raise ValueError(f"Title of input must be unique. Duplicate title {title} in trigger {self.trigger_name}")
 
         self.inputs["schema"]["properties"][title] = {
-            "title": title, 
-            "type": type["type"], 
+            "title": title,
+            "type": type["type"],
             "x-ms-dynamically-added": True,
             "description": description,
             "x-ms-content-hint": type["hint"]
@@ -188,7 +201,7 @@ class ManualTrigger(BaseTrigger):
             self.inputs["schema"]["properties"][title]["format"] = type["format"]
 
         if len(options) == 0 and (type == TriggerInputVariableType.dropdown or type == TriggerInputVariableType.multi_select):
-            raise Exception(f"Input '{title}' of '{self.trigger_name}' must have options. Is Type {type["name"]}.")
+            raise ValueError(f"Input '{title}' of '{self.trigger_name}' must have options. Is Type {type["name"]}.")
 
         if type == TriggerInputVariableType.multi_select:
                 self.inputs["schema"]["properties"][title]["items"] = {"enum": options, "type": "string"}
@@ -214,3 +227,29 @@ class ManualTrigger(BaseTrigger):
         d["kind"] = self.kind
         d["inputs"] = self.inputs
         return d
+
+class ExternalTrigger(BaseTrigger):
+    """
+    A class defining an external trigger. Typically used for triggers that watch external data, such as email or form connectors
+
+    Attributes:
+        kind (str): The kind of manual trigger, defaults to 'Button'.
+        inputs (Dict): The inputs required by the trigger, defined by a schema.
+        reoccurrence (Dict): An optional timer used by some triggers.
+    """
+    def __init__(self, name: str, splitOn: str = "@triggerOutputs()?['body/value']"):
+        super().__init__(name)
+
+        self.splitOn = splitOn
+
+    def __set_frequency(self, interval: int, frequency: str):
+        self.recurrence = {"interval": interval, "frequency": frequency}
+
+    def export(self):
+        """
+        Exports the trigger's data in a dictionary format. This method should be implemented by derived classes.
+
+        Raises:
+            NotImplementedError: If the method is not overridden in a derived class.
+        """
+        raise NotImplementedError()

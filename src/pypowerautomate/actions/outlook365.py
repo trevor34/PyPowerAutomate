@@ -297,7 +297,7 @@ class Outlook365GetEmailV2(BaseAction):
         super().__init__(name)
         self.type = "OpenApiConnection"
         self.messageid: str = messageid
-        self.includeattachments: bool = str(includeattachments)
+        self.includeattachments: str = str(includeattachments)
 
     def export(self) -> Dict:
         inputs = {}
@@ -329,11 +329,11 @@ class Outlook365GetEmailsV3(BaseAction):
         super().__init__(name)
         self.type = "OpenApiConnection"
         self.folderpath: str = folderpath
-        self.fetchonlyunread: bool = str(fetchonlyunread)
-        self.includeattachments: bool = str(includeattachments)
+        self.fetchonlyunread: str = str(fetchonlyunread)
+        self.includeattachments: str = str(includeattachments)
         self.top: int = top
         self.importance: str = importance
-        self.fetchonlywithattachment: bool = str(fetchonlywithattachment)
+        self.fetchonlywithattachment: str = str(fetchonlywithattachment)
 
     def export(self) -> Dict:
         inputs = {}
@@ -466,9 +466,9 @@ class Outlook365SendEmailWithOptions(BaseAction):
         self.subject: str = subject
         self.options: str = options
         self.importance: str = importance
-        self.hidehtmlmessage: bool = str(hidehtmlmessage)
-        self.showhtmlconfirmationdialog: bool = str(showhtmlconfirmationdialog)
-        self.hidemicrosoftfooter: bool = str(hidemicrosoftfooter)
+        self.hidehtmlmessage: str = str(hidehtmlmessage)
+        self.showhtmlconfirmationdialog: str = str(showhtmlconfirmationdialog)
+        self.hidemicrosoftfooter: str = str(hidemicrosoftfooter)
 
     def export(self) -> Dict:
         inputs = {}

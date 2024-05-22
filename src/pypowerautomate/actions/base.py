@@ -1,7 +1,12 @@
-from typing import List, Dict, Set, Union
+from typing import Dict, Set, Union
 import uuid
 from copy import deepcopy
 
+# Prevent Pylance from complaining about Actions not being imported with the lazy import.
+# Does not execute unless being type checked by a linter.
+from typing import TYPE_CHECKING
+if TYPE_CHECKING:
+    from .actions import Actions
 
 class State:
     """
@@ -126,11 +131,11 @@ class BaseAction:
         Returns:
             Actions: A new Actions instance representing the combination.
         """
-        from .actions import Actions  # Lazy Import(to avoid circulare import)
+        from .actions import Actions  # Lazy Import(to avoid circular import)
         if isinstance(rhs_actions, Actions):
             new_actions = Actions(rhs_actions.is_root_actions)
             new_actions.append(self)
-            stack = [(rhs_actions.root_node, None)]
+            stack: list[tuple[BaseAction|SkeltonNode, BaseAction|SkeltonNode|None]] = [(rhs_actions.root_node, None)]
             while stack:
                 child, parent = stack.pop()
                 new_child = child.clone()

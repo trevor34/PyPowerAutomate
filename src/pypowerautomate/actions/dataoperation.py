@@ -13,8 +13,8 @@ class SelectAction(BaseAction):
     """
     Defines a selection action similar to the `map` function, transforming an input array or list into a new structure based on specified key-value pairs.
     """
-    
-    def __init__(self, name: str, inputs: List | str, key: str = None, value: str = None, select: str = None):
+
+    def __init__(self, name: str, inputs: List | str, key: str|None = None, value: str|None = None, select: str|None = None):
         """
         Initializes a new instance of SelectAction.
 
@@ -44,7 +44,7 @@ class CreateTableAction(BaseAction):
     """
     Defines an action to create a table from an array of dictionaries or an expression that evaluates to such an array, formatted as CSV or HTML.
     """
-    
+
     def __init__(self, name: str, inputs: List[Dict] | str, format: str):
         """
         Initializes a new instance of CreateTableAction.
@@ -73,7 +73,7 @@ class ComposeAction(BaseAction):
     """
     Defines an action to compose data into a specified structure, typically used for constructing new data objects.
     """
-    
+
     def __init__(self, name: str, inputs: List | Dict | str):
         """
         Initializes a new instance of ComposeAction.
@@ -101,7 +101,7 @@ class FilterArrayAction(BaseAction):
     """
     Defines an action to filter elements of an array based on a specified condition, similar to the `filter` function.
     """
-    
+
     def __init__(self, name: str, inputs: List | str, where: str):
         """
         Initializes a new instance of FilterArrayAction.
@@ -130,7 +130,7 @@ class JoinAction(BaseAction):
     """
     Defines an action to concatenate elements of an array into a single string, separated by a specified delimiter.
     """
-    
+
     def __init__(self, name: str, inputs: List | str, join_with: str):
         """
         Initializes a new instance of JoinAction.
@@ -159,7 +159,7 @@ class ParseJSONAction(BaseAction):
     """
     Defines an action to parse JSON based on a given schema
     """
-    
+
     def __init__(self, name: str, content: str, schema: dict):
         """
         Initializes a new instance of ParseJSON.

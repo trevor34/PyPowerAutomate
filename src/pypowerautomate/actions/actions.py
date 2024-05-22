@@ -1,5 +1,5 @@
 import json
-from typing import List, Dict, Union
+from typing import List, Dict, Tuple, Union
 from copy import deepcopy
 from .base import BaseAction, SkeltonNode
 from .variable import InitVariableAction
@@ -25,14 +25,14 @@ class Actions:
         self.nodes: Dict[str, BaseAction] = {"root": self.root_node}
         self.variable_init_nodes: List[BaseAction] = []
 
-    def __validate_action(self, new_action: BaseAction, prev_action: BaseAction = None):
+    def __validate_action(self, new_action: BaseAction, prev_action: BaseAction|None = None):
         """
         Validates a new action before adding it to the tree, ensuring it does not already exist, and checks parent-child constraints.
 
         Args:
             new_action (BaseAction): The action to be validated.
             prev_action (BaseAction): The previous action in the tree to which the new action would be linked.
-        
+
         Raises:
             ValueError: If the action violates any constraints.
         """
@@ -65,7 +65,7 @@ class Actions:
         self.last_update_node = new_action
         self.nodes[new_action.action_name] = new_action
 
-    def add_after(self, new_action: BaseAction, prev_action: BaseAction, force_exec: bool = False, exec_if_failed: bool = False):
+    def add_after(self, new_action: BaseAction, prev_action: BaseAction|SkeltonNode|None, force_exec: bool = False, exec_if_failed: bool = False):
         """
         Adds a new action immediately after a specified action in the tree.
 
@@ -76,9 +76,11 @@ class Actions:
             exec_if_failed (bool): If true, the new action will execute only if the previous action failed.
         """
         self.__validate_action(new_action, prev_action)
-        prev_action.add_next_action(new_action)
+        if prev_action != None:
+            prev_action.add_next_action(new_action)
         new_action.have_parent_node = True
-        new_action.update_runafter(prev_action, force_exec=force_exec, exec_if_failed=exec_if_failed)
+        if prev_action != None:
+            new_action.update_runafter(prev_action, force_exec=force_exec, exec_if_failed=exec_if_failed)
         self.last_update_node = new_action
         self.nodes[new_action.action_name] = new_action
 
@@ -125,7 +127,7 @@ class Actions:
         new_actions = Actions(self.is_root_actions)
         new_actions.root_node = new_root
         new_actions.nodes = {"root": new_root}
-        stack = [(new_root, None)]
+        stack: List[Tuple[BaseAction, BaseAction|None]] = [(new_root, None)]
         while stack:
             child, parent = stack.pop()
             if parent:
@@ -160,7 +162,7 @@ class Actions:
         if isinstance(rhs_actions, Actions):
             new_actions = self.clone()
             new_actions.is_root_actions |= rhs_actions.is_root_actions
-            stack = [(rhs_actions.root_node, None)]
+            stack: List[Tuple[BaseAction, SkeltonNode | BaseAction | None]] = [(rhs_actions.root_node, None)]
             while stack:
                 child, parent = stack.pop()
                 new_child = child.clone()
@@ -203,7 +205,7 @@ class RawActions:
 
     def __init__(self, definition: Dict):
         self.definition: Dict = definition
-    
+
     def validation(self) -> bool:
         """
         Validates the structure of the actions dictionary, ensuring each action has required properties and there are no duplicate names or unresolved dependencies.

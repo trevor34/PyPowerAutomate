@@ -1,4 +1,7 @@
 import json
+from typing import Dict
+
+from ..environment_variable import EnvironmentVariable
 from ..actions import BaseAction, Actions
 from ..triggers import BaseTrigger, Triggers
 
@@ -21,7 +24,7 @@ class Flow:
     """
     Manages a PowerAutomate Flow, including its components like triggers and actions.
     This class allows for configuring and manipulating the structure of a workflow.
-    
+
     Attributes:
         schema (str): The default schema for the flow.
         contentVersion (str): The version of the content used in the flow.
@@ -35,22 +38,23 @@ class Flow:
         """
         Initializes the Flow with default triggers and actions.
         """
-        self.triggers: BaseTrigger = Triggers()
+        self.triggers: Triggers = Triggers()
         self.root_actions: Actions = Actions(True)
+        self.__environment_variables: Dict[str, EnvironmentVariable] = {}
 
     def set_trigger(self, trigger: BaseTrigger):
         """
         Sets the main trigger for the flow.
-        
+
         Args:
             trigger (BaseTrigger): An instance of BaseTrigger to be set as the flow's main trigger.
         """
         self.triggers.append(trigger)
 
-    def append_action(self, action: BaseAction, prev_action: BaseAction = None, force_exec: bool = False, exec_if_failed: bool = False):
+    def append_action(self, action: BaseAction, prev_action: BaseAction|None = None, force_exec: bool = False, exec_if_failed: bool = False):
         """
         Appends an action to the flow, optionally specifying a previous action to link it after.
-        
+
         Args:
             action (BaseAction): The action to append.
             prev_action (BaseAction, optional): The action after which the new action should be placed.
@@ -62,10 +66,13 @@ class Flow:
         else:
             self.root_actions.append(action, force_exec, exec_if_failed)
 
+    def add_environment_variable(self, variable: EnvironmentVariable):
+        self.__environment_variables[variable.normalized_name] = variable
+
     def add_top_action(self, action: BaseAction):
         """
         Adds an action at the top of the actions list.
-        
+
         Args:
             action (BaseAction): The action to be added at the top of the action sequence.
         """
@@ -74,7 +81,7 @@ class Flow:
     def export(self):
         """
         Exports the flow configuration as a dictionary.
-        
+
         Returns:
             dict: A dictionary representing the complete flow configuration.
         """
@@ -82,6 +89,17 @@ class Flow:
         d["$schema"] = Flow.schema
         d["contentVersion"] = Flow.contentVersion
         d["parameters"] = Flow.parameters
+
+        for name, variable in self.__environment_variables.items():
+            var = {}
+            var["defaultValue"] = variable.default_value
+            var["type"] = variable.type["literal"]
+            var["metadata"] = {}
+            var["metadata"]["schemaName"] = f"{variable.prefix}_{variable.normalized_name}"
+            var["metadata"]["description"] = variable.description
+
+            d["parameters"][name] = var
+
         d["triggers"] = self.triggers.export()
         d["actions"] = self.root_actions.export()
         return d
@@ -89,10 +107,10 @@ class Flow:
     def export_json(self, xor_key=None):
         """
         Exports the flow configuration as a JSON string, optionally encoding it with an XOR key.
-        
+
         Args:
             xor_key (str, optional): A comma-separated string of integers used as the key for XOR encryption.
-        
+
         Returns:
             str: A JSON string representation of the flow, potentially XOR encrypted.
         """

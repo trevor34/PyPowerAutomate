@@ -17,7 +17,7 @@ class Connections:
     Manages information about APIs connected through PowerAutomate.
     This class is especially useful when creating new workflows with the CreateFlowAction.
     It expects connection strings to be added in the following formats:
-    
+
     Example connection strings:
     - "shared-flowmanagemen-282bc0cf-2475-4655-8262-a6938ff6b179"
     - "ce9f7496f45f46649d94019c8f65693f"
@@ -32,12 +32,12 @@ class Connections:
     def set_connections_from_dict(self, data: dict) -> int:
         """
         Populates the connections list from a dictionary containing API connection data.
-        
+
         Args:
             data (dict): A dictionary containing 'value' as a key, which is a list of
                          connection information dictionaries, each containing 'properties'
                          and 'apiId'.
-        
+
         Returns:
             int: The number of connections added to the list.
         """
@@ -68,10 +68,10 @@ class Connections:
     def set_connections_from_json_file(self, path: str) -> int:
         """
         Loads connection data from a JSON file and uses it to populate the connections list.
-        
+
         Args:
             path (str): The file path to a JSON file containing connection data.
-        
+
         Returns:
             int: The number of connections added to the list.
         """
@@ -80,15 +80,15 @@ class Connections:
             data = json.load(f)
         return self.set_connections_from_dict(data)
 
-    def add_connection(self, connection_name: str, id: str = None):
+    def add_connection(self, connection_name: str, id: str|None = None):
         """
         Adds a single connection to the list using the specified connection name and optional ID.
-        
+
         Args:
             connection_name (str): The name of the connection.
             id (str, optional): The unique identifier for the API. If not provided,
                                 the API name is used to look up the ID from a predefined list.
-        
+
         Raises:
             ValueError: If the API name is not found and no ID is provided.
         """
@@ -100,7 +100,7 @@ class Connections:
 
         if not id:
             if apiname not in connectors.CONNECTORS:
-                raise ValueError("API not found. Set id name to add_connection().")
+                raise ValueError(f"API {apiname} not found. Set id name to add_connection().")
             d["id"] = connectors.CONNECTORS[apiname]
         else:
             d["id"] = id
@@ -110,7 +110,7 @@ class Connections:
     def export(self):
         """
         Exports the current list of connections.
-        
+
         Returns:
             list: A list of dictionaries, each representing a connection.
         """

@@ -42,8 +42,8 @@ package = Package("incremental_test",flow)
 package.export_zipfile()
 ```
 
-This example creates manual trigger and 2 actions. Then export the flow as legacy package(zip file).
-You can import the flow by uploading `incremental_test.zip` to Power Automate. 
+This example creates manual trigger and 2 actions, then exports the flow as legacy package(zip file).
+You can import the flow by uploading `incremental_test.zip` to Power Automate.
 
 ## Supported Triggers
 
