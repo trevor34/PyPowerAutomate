@@ -18,6 +18,8 @@ class Actions:
     To manage variable initialization actions at the top of the chain in flows triggered by events, such actions are only allowed at the root level and must be executed in sequence before other actions.
     """
 
+    used_names = []
+
     def __init__(self, is_root: bool = False) -> None:
         self.root_node = SkeltonNode("root")
         self.last_update_node = self.root_node
@@ -47,9 +49,11 @@ class Actions:
 
         original_name = new_action.action_name
         counter = 1
-        while new_action.action_name in self.nodes:
+        while new_action.action_name in Actions.used_names:
             new_action.action_name = f"{original_name}_{counter}"
             counter += 1
+
+        Actions.used_names.append(new_action.action_name)
 
     def add_top(self, new_action: BaseAction):
         """

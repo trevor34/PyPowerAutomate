@@ -42,6 +42,12 @@ class Flow:
         self.root_actions: Actions = Actions(True)
         self.__environment_variables: Dict[str, EnvironmentVariable] = {}
 
+    def has_actions(self):
+        return self.action_count() != 0
+
+    def action_count(self):
+        return len(self.root_actions.nodes.items()) - 1
+
     def set_trigger(self, trigger: BaseTrigger):
         """
         Sets the main trigger for the flow.

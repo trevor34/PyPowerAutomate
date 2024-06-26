@@ -1,7 +1,7 @@
 
 """
-List of connectors available in Power Automate. 
-Extracted data from the Actions section of the Power Automate Management connector list (2023/08/02) 
+List of connectors available in Power Automate.
+Extracted data from the Actions section of the Power Automate Management connector list (2023/08/02)
 """
 CONNECTORS = {
     "shared_sharepointonl": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline",

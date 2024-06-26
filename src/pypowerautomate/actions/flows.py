@@ -18,7 +18,7 @@ class FlowRunChildAction(BaseAction):
                 raise ValueError(f"Flow of {child.display_name} must have a manual trigger.")
 
             input = list(child.flow.triggers.nodes[0].inputs["schema"]["properties"].values())
-            
+
             for i in range(len(input)):
                 self.add_input(input[i]["title"], args[i])
         else:

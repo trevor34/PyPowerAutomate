@@ -302,12 +302,12 @@ class Condition:
         rpn_tokens = infix_to_rpn(tokens)
         self.ast = create_ast(rpn_tokens)
 
-    def export(self) -> Dict:
+    def export(self):
         return ast_to_dict(self.ast)
 
 # s = '(var == "test" and var2 != "test2") or var3 > 1.22 or var4 < 2 or var5 >= 0.123 or var6 <= 6 or not var7 == 7'
 # s = 'var == 1 or (var == "test" and var2 != "test2") or var3 > 1.22 or var4 < 2 or var5 >= 0.123 or var6 <= 6 or not var7 == 7'
 # s  = 'a == true or b != false'
 
-# C = Condition("(aaaho31lk1j2109 == .209122 ) and (Var2221 >= 10) and (false or var1 == (var02 == false))")
+# C = Condition("(parameters('aaaho31lk1j2109') == .209122 ) and (Var2221 >= 10 or eeee startswith 523) and (false or var1 == (var02 == false))")
 # print(C.export())

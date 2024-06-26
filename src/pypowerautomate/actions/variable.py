@@ -6,12 +6,12 @@ class VariableTypes:
     """
     Defines constants for common variable types used in workflow actions.
     """
-    string = "string"
-    integer = "integer"
-    boolean = "boolean"
-    float = "float"
-    array = "array"
-    object = "object"
+    string = "String"
+    integer = "Integer"
+    boolean = "Boolean"
+    float = "Float"
+    array = "Array"
+    object = "Object"
 
 
 class InitVariableAction(BaseAction):

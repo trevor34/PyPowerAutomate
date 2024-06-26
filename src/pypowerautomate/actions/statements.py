@@ -2,6 +2,7 @@ from typing import Dict
 from .base import BaseAction
 from .actions import Actions, RawActions
 from .condition import Condition
+from .expression import Expression
 
 
 class IfStatement(BaseAction):
@@ -13,10 +14,10 @@ class IfStatement(BaseAction):
         condition (Condition): The condition to be evaluated.
     """
 
-    def __init__(self, name: str, condition: Condition):
+    def __init__(self, name: str, condition: Condition|Expression):
         super().__init__(name)
         self.type: str = "If"
-        self.condition: Condition = condition
+        self.condition: Condition|Expression = condition
         self.true_actions: Actions|None = None
         self.false_actions: Actions|None = None
 
@@ -49,7 +50,11 @@ class IfStatement(BaseAction):
         d["metadata"] = self.metadata
         d["type"] = self.type
         d["runAfter"] = self.runafter
-        d["expression"] = self.condition.export()
+
+        if type(self.condition) is Condition:
+            d["expression"] = self.condition.export()
+        elif type(self.condition) is Expression:
+            d["expression"] = self.condition.export(True)
 
         if self.true_actions:
             d["actions"] = self.true_actions.export()
@@ -167,4 +172,78 @@ class DoUntilStatement(BaseAction):
         d["actions"] = self.actions.export()
         d["expression"] = self.expression
         d["limit"] = self.limit
+        return d
+
+class SwitchStatement(BaseAction):
+    """
+    A class that defines a Switch statement.
+
+    Args:
+        name (str): The name of the Switch statement.
+        expression (str): The expression to be evaluated to determine which path to take.
+    """
+
+    def __init__(self, name: str, expression: str):
+        super().__init__(name)
+        self.type: str = "Switch"
+        self.expression: str = expression
+        self.cases: list[CaseStatement] = []
+        self.used_names: list[str] = [] # Used case names are only local to each switch statement, unlike with actions.
+        self.used_cases: list[int|str|None] = []
+        self.default_case = CaseStatement("default", None, Actions()) # type: ignore
+
+    def add_case(self, case_statement: 'CaseStatement'):
+        if case_statement.expression in self.used_cases:
+            raise ValueError(f"Expressions in case statements must be distinct values. {case_statement.name} in switch statement {self.action_name}")
+
+        self.used_cases.append(case_statement.expression)
+
+        original_name = case_statement.name
+        counter = 1
+        while case_statement.name in self.used_names:
+            case_statement.name = f"{original_name}_{counter}"
+            counter += 1
+
+        self.used_names.append(case_statement.name)
+        self.cases.append(case_statement)
+
+    def set_default_case(self, case_statement: 'CaseStatement'):
+        self.default_case = case_statement
+
+    def export(self):
+
+        d = {}
+        d["metadata"] = self.metadata
+        d["type"] = self.type
+        d["runAfter"] = self.runafter
+        d["cases"] = {}
+        d["expression"] = self.expression
+        for case in self.cases:
+            d["cases"][case.name] = case.export()
+
+        d["default"] = self.default_case.export(True)
+
+        return d
+
+class CaseStatement:
+    """
+    A class that defines a Case statement.
+
+    Args:
+        name (str): The name of the Case statement.
+        expression (int|str): The expression to test against the parent Switch statement
+    """
+
+    def __init__(self, name: str, expression: int|str|None, actions: Actions):
+        self.name = name
+        self.expression = expression
+        self.actions = actions
+
+    def export(self, default = False):
+        d = {}
+
+        if not default:
+            d["case"] = self.expression
+        d["actions"] = self.actions.export()
+
         return d

@@ -11,7 +11,7 @@ class PowerAppsVariableType:
 
 class PowerAppsRespondToPowerAppOrFlow(BaseAction):
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, *args):
         super().__init__(name)
         self.type = "Response"
         self.kind = "PowerApp"
@@ -40,6 +40,6 @@ class PowerAppsRespondToPowerAppOrFlow(BaseAction):
         d["inputs"]["statusCode"] = self.status_code
         d["inputs"]["body"] = self.body
         d["inputs"]["schema"] = self.schema
-        
+
         return d
 
