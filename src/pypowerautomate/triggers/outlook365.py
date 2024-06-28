@@ -17,10 +17,10 @@ class OutlookSharedInboxNewEmailTrigger(ExternalTrigger):
         "apiId": "/providers/Microsoft.PowerApps/apis/shared_office365"
     }
 
-    def __init__(self, name: str, mailboxAddress: str, folderId: str|None = None, to: list[str] = [], cc: list[str] = [], toOrCc: list[str] = [], From: list[str] = [], importance: str = "Any", hasAttachments: bool = False, includeAttachments: bool = False, subjectFilter: str|None = None):
+    def __init__(self, name: str, mailboxAddress: str, folderId: str|None = "Inbox", to: list[str] = [], cc: list[str] = [], toOrCc: list[str] = [], From: list[str] = [], importance: str = "Any", hasAttachments: bool = False, includeAttachments: bool = False, subjectFilter: str|None = None):
         super().__init__(name)
 
-        self.__set_frequency(5, "Minutes")
+        self._set_frequency(5, "Minutes")
 
         self.type = "OpenApiConnection"
 

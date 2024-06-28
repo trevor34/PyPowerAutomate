@@ -1,6 +1,7 @@
 import json
 from typing import List, Dict, Tuple, Union
 from copy import deepcopy
+
 from .base import BaseAction, SkeltonNode
 from .variable import InitVariableAction
 
@@ -27,7 +28,7 @@ class Actions:
         self.nodes: Dict[str, BaseAction] = {"root": self.root_node}
         self.variable_init_nodes: List[BaseAction] = []
 
-    def __validate_action(self, new_action: BaseAction, prev_action: BaseAction|None = None):
+    def __validate_action(self, new_action: BaseAction, prev_action: List[BaseAction|None] = [None]):
         """
         Validates a new action before adding it to the tree, ensuring it does not already exist, and checks parent-child constraints.
 
@@ -42,8 +43,9 @@ class Actions:
             raise ValueError(f"{new_action} already exists in Actions")
         if new_action.have_parent_node:
             raise ValueError(f"{new_action} already have a parent Actions.")
-        if prev_action and prev_action not in self.nodes.values():
-            raise ValueError(f"{prev_action} not in Actions")
+        for action in prev_action:
+            if action and action not in self.nodes.values():
+                raise ValueError(f"{action} not in Actions")
         if not self.is_root_actions and isinstance(new_action, InitVariableAction):
             raise ValueError(f"{new_action} cannot be set into non-root Actions")
 
@@ -69,7 +71,7 @@ class Actions:
         self.last_update_node = new_action
         self.nodes[new_action.action_name] = new_action
 
-    def add_after(self, new_action: BaseAction, prev_action: BaseAction|SkeltonNode|None, force_exec: bool = False, exec_if_failed: bool = False):
+    def add_after(self, new_action: BaseAction, prev_action: List[BaseAction|SkeltonNode|None]|BaseAction|SkeltonNode|None, force_exec: bool = False, exec_if_failed: bool = False):
         """
         Adds a new action immediately after a specified action in the tree.
 
@@ -79,12 +81,18 @@ class Actions:
             force_exec (bool): If true, the new action will execute even if the previous action failed.
             exec_if_failed (bool): If true, the new action will execute only if the previous action failed.
         """
+        if not isinstance(prev_action, List):
+            prev_action = [prev_action]
+
         self.__validate_action(new_action, prev_action)
-        if prev_action != None:
-            prev_action.add_next_action(new_action)
+        for action in prev_action:
+            if action != None:
+                action.add_next_action(new_action)
+            
         new_action.have_parent_node = True
-        if prev_action != None:
-            new_action.update_runafter(prev_action, force_exec=force_exec, exec_if_failed=exec_if_failed)
+        for action in prev_action:
+            if action != None:
+                new_action.update_runafter(action, force_exec=force_exec, exec_if_failed=exec_if_failed)
         self.last_update_node = new_action
         self.nodes[new_action.action_name] = new_action
 
@@ -135,7 +143,7 @@ class Actions:
         while stack:
             child, parent = stack.pop()
             if parent:
-                new_actions.add_after(child, parent)
+                new_actions.add_after(child, [parent])
             for next_node in child.next_nodes:
                 stack.append((next_node, child))
         new_actions.last_update_node = new_actions.nodes[self.last_update_node.action_name]
@@ -176,7 +184,7 @@ class Actions:
                     else:
                         stack.append((next_node, new_child))
                 if not isinstance(new_child, SkeltonNode):
-                    new_actions.add_after(new_child, parent)
+                    new_actions.add_after(new_child, [parent])
             return new_actions
         elif isinstance(rhs_actions, BaseAction):
             new_actions = self.clone()

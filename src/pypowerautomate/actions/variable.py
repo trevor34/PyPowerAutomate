@@ -172,7 +172,7 @@ class DecrementVariableAction(BaseAction):
         value (str): The value to be subtracted from the variable.
     """
 
-    def __init__(self, name: str, var_name: str, value: str):
+    def __init__(self, name: str, var_name: str, value):
         super().__init__(name)
         self.type = "DecrementVariable"
         self.inputs = {

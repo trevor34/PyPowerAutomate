@@ -242,7 +242,7 @@ class ExternalTrigger(BaseTrigger):
 
         self.splitOn = splitOn
 
-    def __set_frequency(self, interval: int, frequency: str):
+    def _set_frequency(self, interval: int, frequency: str):
         self.recurrence = {"interval": interval, "frequency": frequency}
 
     def export(self):

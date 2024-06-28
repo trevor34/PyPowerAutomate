@@ -1,5 +1,5 @@
 import json
-from typing import Dict
+from typing import Dict, List
 
 from ..environment_variable import EnvironmentVariable
 from ..actions import BaseAction, Actions
@@ -57,7 +57,7 @@ class Flow:
         """
         self.triggers.append(trigger)
 
-    def append_action(self, action: BaseAction, prev_action: BaseAction|None = None, force_exec: bool = False, exec_if_failed: bool = False):
+    def append_action(self, action: BaseAction, prev_action: List[BaseAction|None]|BaseAction|None = None, force_exec: bool = False, exec_if_failed: bool = False):
         """
         Appends an action to the flow, optionally specifying a previous action to link it after.
 

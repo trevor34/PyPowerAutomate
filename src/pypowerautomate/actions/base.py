@@ -107,9 +107,9 @@ class BaseAction:
             state_list = [State.Succeeded, State.Failed, State.Skipped, State.TimedOut]
         elif exec_if_failed:
             state_list = [State.Failed]
-        if isinstance(parent_node, SkeltonNode):
-            self.runafter = {}
-        else:
+        if not isinstance(parent_node, SkeltonNode):
+        #     self.runafter = {}
+        # else:
             self.runafter[parent_node.action_name] = state_list
 
     def export(self) -> Dict:
@@ -142,7 +142,7 @@ class BaseAction:
                 for next_node in child.next_nodes:
                     stack.append((next_node, new_child if not isinstance(new_child, SkeltonNode) else new_actions.last_update_node))
                 if not isinstance(new_child, SkeltonNode):
-                    new_actions.add_after(new_child, parent)
+                    new_actions.add_after(new_child, [parent])
             return new_actions
         elif isinstance(rhs_actions, BaseAction):
             new_actions = Actions()

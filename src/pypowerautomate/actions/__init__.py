@@ -1,7 +1,7 @@
 from .base import BaseAction, State
 from .actions import Actions, RawActions
 from .condition import Condition
-from .statements import IfStatement, ForeachStatement, ScopeStatement, DoUntilStatement, SwitchStatement, CaseStatement
+from .statements import IfStatement, ForeachStatement, ScopeStatement, DoUntilStatement, SwitchStatement, CaseStatement, DefaultCaseStatement
 from .http import HttpAction
 from .time import AddToTimeAction, WaitAction
 from .teams import *
@@ -15,4 +15,4 @@ from .outlook365 import *
 from .flows import *
 from .powerapps import *
 from .excelonlinebusiness import *
-from .expression import Expression
+from .expression import Expression, SubscriptExpression
