@@ -88,7 +88,7 @@ class Actions:
         for action in prev_action:
             if action != None:
                 action.add_next_action(new_action)
-            
+
         new_action.have_parent_node = True
         for action in prev_action:
             if action != None:
