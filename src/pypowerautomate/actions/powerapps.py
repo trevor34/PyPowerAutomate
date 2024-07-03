@@ -1,4 +1,6 @@
 from typing import Dict
+
+from .expression import Expression
 from .base import BaseAction
 
 class PowerAppsVariableType:
@@ -11,7 +13,7 @@ class PowerAppsVariableType:
 
 class PowerAppsRespondToPowerAppOrFlow(BaseAction):
 
-    def __init__(self, name: str, *args):
+    def __init__(self, name: str):
         super().__init__(name)
         self.type = "Response"
         self.kind = "PowerApp"
@@ -20,10 +22,11 @@ class PowerAppsRespondToPowerAppOrFlow(BaseAction):
         self.schema = {"type": "object", "properties": {}}
         self.status_code = 200
 
-    def add_input(self, title: str, type: Dict, parameter: str):
+    def add_input(self, title: str, type: Dict, parameter: str|Expression):
         if title in self.body:
             raise ValueError(f"Title of input must be unique. Duplicate input title {title} in action {self.action_name}")
-
+        if isinstance(parameter, Expression):
+            parameter = parameter.export()
         self.body[title] = parameter
         self.schema["properties"][title] = {"title": title, "x-ms-dynamically-added": True, "type": type["type"]}
 

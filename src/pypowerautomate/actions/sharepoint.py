@@ -1,4 +1,7 @@
+from enum import Enum
 from typing import Dict
+
+from .expression import Expression
 from .base import BaseAction
 
 
@@ -9,15 +12,24 @@ class SharepointCopyFileAsyncAction(BaseAction):
         "operationId": "CopyFileAsync"
     }
 
-    def __init__(self, name: str, dataset: str, sourceFileId: str, destinationDataset: str, destinationFolderPath: str, nameConflictBehavior: int):
+    def __init__(self, name: str, dataset: str|Expression, sourceFileId: str|Expression, destinationDataset: str|Expression, destinationFolderPath: str|Expression, nameConflictBehavior: int|str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(sourceFileId, Expression):
+            sourceFileId = sourceFileId.export()
+        if isinstance(destinationDataset, Expression):
+            destinationDataset = destinationDataset.export()
+        if isinstance(destinationFolderPath, Expression):
+            destinationFolderPath = destinationFolderPath.export()
+        if isinstance(nameConflictBehavior, Expression):
+            nameConflictBehavior = nameConflictBehavior.export()
         self.dataset: str = dataset
         self.sourceFileId: str = sourceFileId
         self.destinationDataset: str = destinationDataset
         self.destinationFolderPath: str = destinationFolderPath
-        self.nameConflictBehavior: int = nameConflictBehavior
+        self.nameConflictBehavior: int|str = nameConflictBehavior
 
     def export(self) -> Dict:
         inputs = {}
@@ -48,13 +60,19 @@ class SharepointGetFileItemAction(BaseAction):
         "operationId": "GetFileItem"
     }
 
-    def __init__(self, name: str, dataset: str, table: str, id: int):
+    def __init__(self, name: str, dataset: str|Expression, table: str|Expression, id: int|str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
 
+        if isinstance(table, Expression):
+            table = table.export()
+        if isinstance(id, Expression):
+            id = id.export()
         self.dataset: str = dataset
         self.table: str = table
-        self.id: int = id
+        self.id: int|str = id
 
     def export(self) -> Dict:
         inputs = {}
@@ -83,15 +101,24 @@ class SharepointGetItemChangesAction(BaseAction):
         "operationId": "GetItemChanges"
     }
 
-    def __init__(self, name: str, dataset: str, table: str, id: int, since: str, includeDrafts: bool):
+    def __init__(self, name: str, dataset: str|Expression, table: str|Expression, id: int|str|Expression, since: str|Expression, includeDrafts: bool|str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(table, Expression):
+            table = table.export()
+        if isinstance(id, Expression):
+            id = id.export()
+        if isinstance(since, Expression):
+            since = since.export()
+        if isinstance(includeDrafts, Expression):
+            includeDrafts = includeDrafts.export()
         self.dataset: str = dataset
         self.table: str = table
-        self.id: int = id
+        self.id: int|str = id
         self.since: str = since
-        self.includeDrafts: bool = includeDrafts
+        self.includeDrafts: bool|str = includeDrafts
 
     def export(self) -> Dict:
         inputs = {}
@@ -122,13 +149,22 @@ class SharepointGrantAccessAction(BaseAction):
         "operationId": "GrantAccess"
     }
 
-    def __init__(self, name: str, dataset: str, table: str, id: int, recipients: str, roleValue: str):
+    def __init__(self, name: str, dataset: str|Expression, table: str|Expression, id: int|str|Expression, recipients: str|Expression, roleValue: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(table, Expression):
+            table = table.export()
+        if isinstance(id, Expression):
+            id = id.export()
+        if isinstance(recipients, Expression):
+            recipients = recipients.export()
+        if isinstance(roleValue, Expression):
+            roleValue = roleValue.export()
         self.dataset: str = dataset
         self.table: str = table
-        self.id: int = id
+        self.id: int|str = id
         self.recipients: str = recipients
         self.roleValue: str = roleValue
 
@@ -161,15 +197,24 @@ class SharepointMoveFileAsyncAction(BaseAction):
         "operationId": "MoveFileAsync"
     }
 
-    def __init__(self, name: str, dataset: str, sourceFileId: str, destinationDataset: str, destinationFolderPath: str, nameConflictBehavior: int):
+    def __init__(self, name: str, dataset: str|Expression, sourceFileId: str|Expression, destinationDataset: str|Expression, destinationFolderPath: str|Expression, nameConflictBehavior: int|str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(sourceFileId, Expression):
+            sourceFileId = sourceFileId.export()
+        if isinstance(destinationDataset, Expression):
+            destinationDataset = destinationDataset.export()
+        if isinstance(destinationFolderPath, Expression):
+            destinationFolderPath = destinationFolderPath.export()
+        if isinstance(nameConflictBehavior, Expression):
+            nameConflictBehavior = nameConflictBehavior.export()
         self.dataset: str = dataset
         self.sourceFileId: str = sourceFileId
         self.destinationDataset: str = destinationDataset
         self.destinationFolderPath: str = destinationFolderPath
-        self.nameConflictBehavior: int = nameConflictBehavior
+        self.nameConflictBehavior: int|str = nameConflictBehavior
 
     def export(self) -> Dict:
         inputs = {}
@@ -200,10 +245,17 @@ class SharepointCreateFileAction(BaseAction):
         "operationId": "CreateFile"
     }
 
-    def __init__(self, name: str, dataset: str, folderPath: str, filename: str, body: str):
+    def __init__(self, name: str, dataset: str|Expression, folderPath: str|Expression, filename: str|Expression, body: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(folderPath, Expression):
+            folderPath = folderPath.export()
+        if isinstance(filename, Expression):
+            filename = filename.export()
+        if isinstance(body, Expression):
+            body = body.export()
         self.dataset: str = dataset
         self.folderPath: str = folderPath
         self.filename: str = filename
@@ -237,15 +289,25 @@ class SharepointCopyFolderAsyncAction(BaseAction):
         "operationId": "CopyFolderAsync"
     }
 
-    def __init__(self, name: str, dataset: str, sourceFolderId: str, destinationDataset: str, destinationFolderPath: str, nameConflictBehavior: int):
+    def __init__(self, name: str, dataset: str|Expression, sourceFolderId: str|Expression, destinationDataset: str|Expression, destinationFolderPath: str|Expression, nameConflictBehavior: int|str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(sourceFolderId, Expression):
+            sourceFolderId = sourceFolderId.export()
+        if isinstance(destinationDataset, Expression):
+            destinationDataset = destinationDataset.export()
+        if isinstance(destinationFolderPath, Expression):
+            destinationFolderPath = destinationFolderPath.export()
+        if isinstance(nameConflictBehavior, Expression):
+            nameConflictBehavior = nameConflictBehavior.export()
 
         self.dataset: str = dataset
         self.sourceFolderId: str = sourceFolderId
         self.destinationDataset: str = destinationDataset
         self.destinationFolderPath: str = destinationFolderPath
-        self.nameConflictBehavior: int = nameConflictBehavior
+        self.nameConflictBehavior: int|str = nameConflictBehavior
 
     def export(self) -> Dict:
         inputs = {}
@@ -276,15 +338,24 @@ class SharepointMoveFolderAsyncAction(BaseAction):
         "operationId": "MoveFolderAsync"
     }
 
-    def __init__(self, name: str, dataset: str, sourceFolderId: str, destinationDataset: str, destinationFolderPath: str, nameConflictBehavior: int):
+    def __init__(self, name: str, dataset: str|Expression, sourceFolderId: str|Expression, destinationDataset: str|Expression, destinationFolderPath: str|Expression, nameConflictBehavior: int|str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(sourceFolderId, Expression):
+            sourceFolderId = sourceFolderId.export()
+        if isinstance(destinationDataset, Expression):
+            destinationDataset = destinationDataset.export()
+        if isinstance(destinationFolderPath, Expression):
+            destinationFolderPath = destinationFolderPath.export()
+        if isinstance(nameConflictBehavior, Expression):
+            nameConflictBehavior = nameConflictBehavior.export()
         self.dataset: str = dataset
         self.sourceFolderId: str = sourceFolderId
         self.destinationDataset: str = destinationDataset
         self.destinationFolderPath: str = destinationFolderPath
-        self.nameConflictBehavior: int = nameConflictBehavior
+        self.nameConflictBehavior: int|str = nameConflictBehavior
 
     def export(self) -> Dict:
         inputs = {}
@@ -315,10 +386,13 @@ class SharepointListFolderAction(BaseAction):
         "operationId": "ListFolder"
     }
 
-    def __init__(self, name: str, dataset: str, id: str):
+    def __init__(self, name: str, dataset: str|Expression, id: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(id, Expression):
+            id = id.export()
         self.dataset: str = dataset
         self.id: str = id
 
@@ -348,10 +422,15 @@ class SharepointCreateNewFolderAction(BaseAction):
         "operationId": "CreateNewFolder"
     }
 
-    def __init__(self, name: str, dataset: str, table: str, path: str):
+    def __init__(self, name: str, dataset: str|Expression, table: str|Expression, path: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(table, Expression):
+            table = table.export()
+        if isinstance(path, Expression):
+            path = path.export()
         self.dataset: str = dataset
         self.table: str = table
         self.path: str = path
@@ -383,13 +462,19 @@ class SharepointGetFileContentByPathAction(BaseAction):
         "operationId": "GetFileContentByPath"
     }
 
-    def __init__(self, name: str, dataset: str, path: str, inferContentType: bool):
+    def __init__(self, name: str, dataset: str|Expression, path: str|Expression, inferContentType: bool|str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(path, Expression):
+            path = path.export()
+        if isinstance(inferContentType, Expression):
+            inferContentType = inferContentType.export()
 
         self.dataset: str = dataset
         self.path: str = path
-        self.inferContentType: bool = inferContentType
+        self.inferContentType: bool|str = inferContentType
 
     def export(self) -> Dict:
         inputs = {}
@@ -418,10 +503,13 @@ class SharepointGetFileMetadataByPathAction(BaseAction):
         "operationId": "GetFileMetadataByPath"
     }
 
-    def __init__(self, name: str, dataset: str, path: str):
+    def __init__(self, name: str, dataset: str|Expression, path: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(path, Expression):
+            path = path.export()
         self.dataset: str = dataset
         self.path: str = path
 
@@ -451,13 +539,18 @@ class SharepointGetFileContentAction(BaseAction):
         "operationId": "GetFileContent"
     }
 
-    def __init__(self, name: str, dataset: str, id: str, inferContentType: bool):
+    def __init__(self, name: str, dataset: str|Expression, id: str|Expression, inferContentType: bool|str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(id, Expression):
+            id = id.export()
+        if isinstance(inferContentType, Expression):
+            inferContentType = inferContentType.export()
         self.dataset: str = dataset
         self.id: str = id
-        self.inferContentType: bool = inferContentType
+        self.inferContentType: bool|str = inferContentType
 
     def export(self) -> Dict:
         inputs = {}
@@ -486,10 +579,13 @@ class SharepointGetFileMetadataAction(BaseAction):
         "operationId": "GetFileMetadata"
     }
 
-    def __init__(self, name: str, dataset: str, id: str):
+    def __init__(self, name: str, dataset: str|Expression, id: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(id, Expression):
+            id = id.export()
         self.dataset: str = dataset
         self.id: str = id
 
@@ -519,10 +615,15 @@ class SharepointUpdateFileAction(BaseAction):
         "operationId": "UpdateFile"
     }
 
-    def __init__(self, name: str, dataset: str, id: str, body: str):
+    def __init__(self, name: str, dataset: str|Expression, id: str|Expression, body: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(id, Expression):
+            id = id.export()
+        if isinstance(body, Expression):
+            body = body.export()
         self.dataset: str = dataset
         self.id: str = id
         self.body: str = body
@@ -554,10 +655,13 @@ class SharepointDeleteFileAction(BaseAction):
         "operationId": "DeleteFile"
     }
 
-    def __init__(self, name: str, dataset: str, id: str):
+    def __init__(self, name: str, dataset: str|Expression, id: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(id, Expression):
+            id = id.export()
         self.dataset: str = dataset
         self.id: str = id
 
@@ -587,10 +691,13 @@ class SharepointGetFolderMetadataAction(BaseAction):
         "operationId": "GetFolderMetadata"
     }
 
-    def __init__(self, name: str, dataset: str, id: str):
+    def __init__(self, name: str, dataset: str|Expression, id: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(id, Expression):
+            id = id.export()
         self.dataset: str = dataset
         self.id: str = id
 
@@ -620,10 +727,11 @@ class SharepointGetTablesAction(BaseAction):
         "operationId": "GetTables"
     }
 
-    def __init__(self, name: str, dataset: str):
+    def __init__(self, name: str, dataset: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
         self.dataset: str = dataset
 
     def export(self) -> Dict:
@@ -651,10 +759,11 @@ class SharepointListRootFolderAction(BaseAction):
         "operationId": "ListRootFolder"
     }
 
-    def __init__(self, name: str, dataset: str):
+    def __init__(self, name: str, dataset: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
         self.dataset: str = dataset
 
     def export(self) -> Dict:
@@ -682,10 +791,17 @@ class SharepointExtractFolderV2Action(BaseAction):
         "operationId": "ExtractFolderV2"
     }
 
-    def __init__(self, name: str, dataset: str, source: str, destination: str, overwrite: bool):
+    def __init__(self, name: str, dataset: str|Expression, source: str|Expression, destination: str|Expression, overwrite: bool):
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(source, Expression):
+            source = source.export()
+        if isinstance(destination, Expression):
+            destination = destination.export()
+        if isinstance(overwrite, Expression):
+            overwrite = overwrite.export()
         self.dataset: str = dataset
         self.source: str = source
         self.destination: str = destination
@@ -712,7 +828,12 @@ class SharepointExtractFolderV2Action(BaseAction):
         return d
 
 
-METHODS = set(["GET", "PUT", "POST", "PATCH", "DELETE"])
+class SHAREPOINT_HTTP_METHODS(str, Enum):
+    GET = "GET"
+    PUT = "PUT"
+    POST = "POST"
+    PATCH = "PATCH"
+    DELETE = "DELETE"
 
 class SharepointHTTPRequestAction(BaseAction):
     """
@@ -725,7 +846,7 @@ class SharepointHTTPRequestAction(BaseAction):
         "apiId": "/providers/Microsoft.PowerApps/apis/shared_sharepointonline"
     }
 
-    def __init__(self, name: str, dataset: str, method: str, uri: str, headers: dict|None = None, body: str|None = None):
+    def __init__(self, name: str, dataset: str|Expression, method: str|Expression|SHAREPOINT_HTTP_METHODS, uri: str|Expression, headers: dict|Expression|str|None = None, body: str|Expression|None = None):
         """
         Initializes a new Sharepoint HTTP Request with specified parameters.
 
@@ -740,15 +861,25 @@ class SharepointHTTPRequestAction(BaseAction):
 
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(dataset, Expression):
+            dataset = dataset.export()
+        if isinstance(method, Expression):
+            method = method.export()
+        if isinstance(uri, Expression):
+            uri = uri.export()
+        if isinstance(headers, Expression):
+            headers = headers.export()
+        if isinstance(body, Expression):
+            body = body.export()
 
         self.dataset: str = dataset
 
-        if method not in METHODS:
-            raise ValueError(f"Unsupported method type {method} in action {name}. Must be one of the following: {METHODS}")
+        # if method not in METHODS:
+            # raise ValueError(f"Unsupported method type {method} in action {name}. Must be one of the following: {METHODS}")
 
         self.method: str = method
         self.uri: str = uri
-        self.headers: dict|None = headers
+        self.headers: dict|str|None = headers
         self.body: str|None = body
 
     def export(self) -> Dict:

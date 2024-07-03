@@ -1,3 +1,4 @@
+from .expression import Expression
 import uuid
 from typing import List, Dict
 from .base import BaseAction
@@ -69,8 +70,10 @@ class GetTeamAction(BaseAction):
         "operationId": "GetTeam"
     }
 
-    def __init__(self, name: str, team_id: str):
+    def __init__(self, name: str, team_id: str|Expression):
         super().__init__(name)
+        if isinstance(team_id, Expression):
+            team_id = team_id.export()
         self.type = "OpenApiConnection"
         self.inputs = {}
         self.parameters = {}
@@ -113,8 +116,10 @@ class GetChannelsForGroupAction(BaseAction):
         "operationId": "GetChannelsForGroup"
     }
 
-    def __init__(self, name: str, group_id: str):
+    def __init__(self, name: str, group_id: str|Expression):
         super().__init__(name)
+        if isinstance(group_id, Expression):
+            group_id = group_id.export()
         self.type = "OpenApiConnection"
         self.inputs = {}
         self.parameters = {}
@@ -156,8 +161,12 @@ class GetMessagesFromChannelAction(BaseAction):
         "operationId": "GetMessagesFromChannel"
     }
 
-    def __init__(self, name: str, group_id: str, channel_id: str):
+    def __init__(self, name: str, group_id: str|Expression, channel_id: str|Expression):
         super().__init__(name)
+        if isinstance(group_id, Expression):
+            group_id = group_id.export()
+        if isinstance(channel_id, Expression):
+            channel_id = channel_id.export()
         self.type = "OpenApiConnection"
         self.inputs = {}
         self.parameters = {}
@@ -202,8 +211,12 @@ class GetChatsAction(BaseAction):
         "operationId": "GetChats"
     }
 
-    def __init__(self, name: str, chat_type: str = "all", topic: str = "all"):
+    def __init__(self, name: str, chat_type: str|Expression = "all", topic: str|Expression = "all"):
         super().__init__(name)
+        if isinstance(chat_type, Expression):
+            chat_type = chat_type.export()
+        if isinstance(topic, Expression):
+            topic = topic.export()
         self.type = "OpenApiConnection"
         self.inputs = {}
         self.parameters = {}
@@ -248,8 +261,12 @@ class ListMembersAction(BaseAction):
         "operationId": "ListMembers"
     }
 
-    def __init__(self, name: str, id: str, thread_type: str = "groupchat"):
+    def __init__(self, name: str, id: str|Expression, thread_type: str|Expression = "groupchat"):
         super().__init__(name)
+        if isinstance(id, Expression):
+            id = id.export()
+        if isinstance(thread_type, Expression):
+            thread_type = thread_type.export()
         self.type = "OpenApiConnection"
         self.inputs = {}
         self.parameters = {}

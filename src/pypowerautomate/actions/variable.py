@@ -1,4 +1,6 @@
 from typing import Dict
+
+from .expression import Expression
 from .base import BaseAction
 
 
@@ -37,8 +39,11 @@ class InitVariableAction(BaseAction):
             "name": var_name,
             "type": var_type
         }
-        if value:
+        if value is not None:
+            if isinstance(value, Expression):
+                value = value.export()
             var["value"] = value
+
         self.variables.append(var)
         self.inputs["variables"] = self.variables
 
@@ -54,6 +59,7 @@ class InitVariableAction(BaseAction):
         d["type"] = self.type
         d["runAfter"] = self.runafter
         d["inputs"] = self.inputs
+
         return d
 
 
@@ -72,6 +78,10 @@ class SetVariableAction(BaseAction):
             value: The new value to set for the variable.
         """
         super().__init__(name)
+
+        if isinstance(value, Expression):
+            value = value.export()
+
         self.type = "SetVariable"
         self.inputs = {
             "name": var_name,
@@ -108,6 +118,9 @@ class AppendStringToVariableAction(BaseAction):
             value (str): The string value to append.
         """
         super().__init__(name)
+        if isinstance(value, Expression):
+            value = value.export()
+
         self.type = "AppendToStringVariable"
         self.inputs = {
             "name": var_name,
@@ -141,6 +154,8 @@ class IncrementVariableAction(BaseAction):
 
     def __init__(self, name: str, var_name: str, value):
         super().__init__(name)
+        if isinstance(value, Expression):
+            value = value.export()
         self.type = "IncrementVariable"
         self.inputs = {
             "name": var_name,
@@ -175,6 +190,8 @@ class DecrementVariableAction(BaseAction):
     def __init__(self, name: str, var_name: str, value):
         super().__init__(name)
         self.type = "DecrementVariable"
+        if isinstance(value, Expression):
+            value = value.export()
         self.inputs = {
             "name": var_name,
             "value": value

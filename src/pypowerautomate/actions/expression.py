@@ -13,40 +13,41 @@ class Expression:
         self.operator = operator
         self.args = args
 
-    def export(self, in_if = False, top = True):
-        if in_if and self.operator not in if_operators:
-            in_if = False
-
-        if in_if:
-            out = {self.operator: []}
-            if self.operator == "not":
-                out = {self.operator: self.args[0].export(in_if, top)}
-            else:
-                for arg in self.args:
-                    if isinstance(arg, Expression):
-                        out[self.operator].append(arg.export(in_if, top))
-                    else:
-                        out[self.operator].append(arg)
-
+    def export_in_if(self):
+        if self.operator not in if_operators:
+            return self.export()
+        
+        out = {self.operator: []}
+        if self.operator == "not":
+            out = {self.operator: self.args[0].export_in_if()}
         else:
-            out = ""
-
-            if top:
-                out = "@"
-                top = False
-
-            out += self.operator + "("
-
-            out_args = []
             for arg in self.args:
                 if isinstance(arg, Expression):
-                    out_args.append(arg.export(in_if, top))
-                elif type(arg) is str:
-                    out_args.append("'" + arg.replace("'", "''") + "'")
+                    out[self.operator].append(arg.export_in_if())
                 else:
-                    out_args.append(str(arg))
+                    out[self.operator].append(arg)
 
-            out += ",".join(out_args) + ")"
+        return out
+
+    def export(self, top = True):
+        out = ""
+
+        if top:
+            out = "@"
+            top = False
+
+        out += self.operator + "("
+
+        out_args = []
+        for arg in self.args:
+            if isinstance(arg, Expression):
+                out_args.append(arg.export(top))
+            elif type(arg) is str:
+                out_args.append("'" + arg.replace("'", "''") + "'")
+            else:
+                out_args.append(str(arg))
+
+        out += ",".join(out_args) + ")"
 
         return out
 
@@ -55,19 +56,20 @@ class SubscriptExpression(Expression):
         self.expression = expression
         self.args = args
 
-    def export(self, in_if=False, top=True):
-        out = ""
+    def export_in_if(self):
+        return self.export(True)
 
-        in_if = False
+    def export(self, top=True):
+        out = ""
 
         if top:
             out = "@"
             top = False
 
-        out += str(self.expression.export(False, False))
+        out += str(self.expression.export(top))
         for arg in self.args:
             if isinstance(arg, Expression):
-                out += "[" + str(arg.export(in_if, top)) + "]"
+                out += "[" + str(arg.export(top)) + "]"
             elif type(arg) is str:
                 out += "['" + arg.replace("'", "''") + "']"
             else:
@@ -75,11 +77,32 @@ class SubscriptExpression(Expression):
 
         return out
 
+class LiteralExpression(Expression):
+    def __init__(self, literal):
+        self.literal = literal
 
+    def export_in_if(self):
+        return self.export(True)
+
+    def export(self, top=True):
+        out = ""
+        if top:
+            out = "@"
+            top = False
+
+        if self.literal is None:
+            out += "null"
+        else:
+            out = self.literal
+
+        return out
+
+# import json
 # b = SubscriptExpression(SubscriptExpression(SubscriptExpression(Expression("sub"), 4), 5), 6)
 
 # e = Expression("and",
-#     Expression("not", Expression("equals", "te'st", 2)),
+#     Expression("not", Expression("equals", "test", 2)),
 #     Expression("add", b, 3)
 # )
-# print(e.export(True))
+# f = LiteralExpression(False)
+# print(json.dumps(f.export_in_if()))

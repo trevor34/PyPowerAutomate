@@ -1,4 +1,6 @@
 from typing import Dict
+
+from .expression import Expression
 from .base import BaseAction
 
 
@@ -19,9 +21,15 @@ class DropboxCreateFileAction(BaseAction):
         "operationId": "CreateFile"
     }
 
-    def __init__(self, name: str, folderPath: str, filename: str, body: str):
+    def __init__(self, name: str, folderPath: str|Expression, filename: str|Expression, body: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(folderPath, Expression):
+            folderPath = folderPath.export()
+        if isinstance(filename, Expression):
+            filename = filename.export()
+        if isinstance(body, Expression):
+            body = body.export()
         self.folderPath: str = folderPath
         self.filename: str = filename
         self.body: str = body
@@ -57,9 +65,13 @@ class DropboxGetFileContentAction(BaseAction):
         "operationId": "GetFileContent"
     }
 
-    def __init__(self, name: str, id: str, inferContentType: bool = True):
+    def __init__(self, name: str, id: str|Expression, inferContentType: bool|Expression|str = True):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(id, Expression):
+            id = id.export()
+        if isinstance(inferContentType, Expression):
+            inferContentType = inferContentType.export()
         self.id: str = id
         self.inferContentType: str = str(inferContentType)
 
@@ -93,9 +105,13 @@ class DropboxUpdateFileAction(BaseAction):
         "operationId": "UpdateFile"
     }
 
-    def __init__(self, name: str, id: str, body: str):
+    def __init__(self, name: str, id: str|Expression, body: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(id, Expression):
+            id = id.export()
+        if isinstance(body, Expression):
+            body = body.export()
         self.id: str = id
         self.body: str = body
 
@@ -128,9 +144,11 @@ class DropboxListFilesInFolderAction(BaseAction):
         "operationId": "ListFolder"
     }
 
-    def __init__(self, name: str, id: str):
+    def __init__(self, name: str, id: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(id, Expression):
+            id = id.export()
         self.id: str = id
 
     def export(self) -> Dict:
@@ -198,9 +216,13 @@ class DropboxCopyFileAction(BaseAction):
         "operationId": "CopyFile"
     }
 
-    def __init__(self, name: str, source: str, destination: str, overwrite: bool = False):
+    def __init__(self, name: str, source: str|Expression, destination: str|Expression, overwrite: bool|Expression|str = False):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(source, Expression):
+            source = source.export()
+        if isinstance(destination, Expression):
+            destination = destination.export()
         self.source: str = source
         self.destination: str = destination
         self.overwrite: str = str(overwrite)
@@ -240,9 +262,11 @@ class DropboxDeleteFileAction(BaseAction):
         "operationId": "DeleteFile"
     }
 
-    def __init__(self, name: str, id: str):
+    def __init__(self, name: str, id: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(id, Expression):
+            id = id.export()
         self.id: str = id
 
     def export(self) -> Dict:
@@ -278,9 +302,11 @@ class DropboxGetFileMetadataAction(BaseAction):
         "operationId": "GetFileMetadata"
     }
 
-    def __init__(self, name: str, id: str):
+    def __init__(self, name: str, id: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(id, Expression):
+            id = id.export()
         self.id: str = id
 
     def export(self) -> Dict:
@@ -318,9 +344,15 @@ class DropboxExtractArchiveToFolderAction(BaseAction):
         "operationId": "ExtractFolderV2"
     }
 
-    def __init__(self, name: str, source: str, destination: str, overwrite: bool = False):
+    def __init__(self, name: str, source: str|Expression, destination: str|Expression, overwrite: bool|Expression|str = False):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(source, Expression):
+            source = source.export()
+        if isinstance(destination, Expression):
+            destination = destination.export()
+        if isinstance(overwrite, Expression):
+            overwrite = overwrite.export()
         self.source: str = source
         self.destination: str = destination
         self.overwrite: str = str(overwrite)
@@ -361,9 +393,13 @@ class DropboxGetFileContentUsingPathAction(BaseAction):
         "operationId": "GetFileContentByPath"
     }
 
-    def __init__(self, name: str, path: str, inferContentType: bool = True):
+    def __init__(self, name: str, path: str|Expression, inferContentType: bool|Expression|str = True):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(path, Expression):
+            path = path.export()
+        if isinstance(inferContentType, Expression):
+            inferContentType = inferContentType.export()
         self.path: str = path
         self.inferContentType: str = str(inferContentType)
 
@@ -401,9 +437,11 @@ class DropboxGetFileMetadataUsingPathAction(BaseAction):
         "operationId": "GetFileMetadataByPath"
     }
 
-    def __init__(self, name: str, path: str):
+    def __init__(self, name: str, path: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(path, Expression):
+            path = path.export()
         self.path: str = path
 
     def export(self) -> Dict:

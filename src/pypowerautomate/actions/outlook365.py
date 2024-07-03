@@ -1,5 +1,7 @@
 
 from typing import Dict
+
+from .expression import Expression
 from .base import BaseAction
 
 
@@ -10,9 +12,18 @@ class Outlook365SendAnEmailV2(BaseAction):
         "operationId": "SendEmailV2"
     }
 
-    def __init__(self, name: str, to: str, subject: str, body: str, importance: str):
+    def __init__(self, name: str, to: str|Expression, subject: str|Expression, body: str|Expression, importance: str|Expression):
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(to, Expression):
+            to = to.export()
+        if isinstance(subject, Expression):
+            subject = subject.export()
+        if isinstance(body, Expression):
+            body = body.export()
+        if isinstance(importance, Expression):
+            importance = importance.export()
+    
         self.to: str = to
         self.subject: str = subject
         self.body: str = body

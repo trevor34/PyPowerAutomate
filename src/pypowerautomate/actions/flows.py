@@ -1,12 +1,14 @@
 from typing import Dict
 
+from .expression import Expression
+
 from ..triggers import ManualTrigger
 
 from ..package import Package
 from .base import BaseAction
 
 class FlowRunChildAction(BaseAction):
-    def __init__(self, name: str, child: Package | str, *args):
+    def __init__(self, name: str, child: Package|str|Expression, *args):
         super().__init__(name)
 
         self.name = name
@@ -24,9 +26,12 @@ class FlowRunChildAction(BaseAction):
         else:
             self.host["workflowReferenceName"] = child
 
-    def add_input(self, name: str, parameter: str):
+    def add_input(self, name: str, parameter: str|Expression):
         if name in self.body:
             raise ValueError(f"Name of parameter must be unique. Duplicate title {name} in run child flow {self.name}")
+
+        if isinstance(parameter, Expression):
+            parameter = parameter.export()
 
         self.body[name] = parameter
 

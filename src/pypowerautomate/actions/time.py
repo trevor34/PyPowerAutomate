@@ -1,4 +1,6 @@
 from typing import Dict
+
+from pypowerautomate.actions.expression import Expression
 from .base import BaseAction
 
 class AddToTimeAction(BaseAction):
@@ -12,7 +14,7 @@ class AddToTimeAction(BaseAction):
         inputs (dict): Dictionary storing input parameters for the action.
     """
 
-    def __init__(self, name: str, timeUnit: str, interval: int, baseTime: str = "@{utcNow()}"):
+    def __init__(self, name: str, timeUnit: str|Expression, interval: int|str|Expression, baseTime: str|Expression = "@{utcNow()}"):
         """
         Initializes a new instance of AddToTimeAction.
 
@@ -23,6 +25,14 @@ class AddToTimeAction(BaseAction):
             baseTime (str): The starting time point. Default is the current UTC time.
         """
         super().__init__(name)
+
+        if isinstance(timeUnit, Expression):
+            timeUnit = timeUnit.export()
+        if isinstance(interval, Expression):
+            interval = interval.export()
+        if isinstance(baseTime, Expression):
+            baseTime = baseTime.export()
+
         self.type = "Expression"
         self.kind = "AddToTime"
         self.inputs = {}
@@ -56,7 +66,7 @@ class WaitAction(BaseAction):
         inputs (dict): Dictionary storing input parameters for the action.
     """
 
-    def __init__(self, name: str, count: int, unit: str):
+    def __init__(self, name: str, count: int|str|Expression, unit: str|Expression):
         """
         Initializes a new instance of WaitAction.
 
@@ -66,6 +76,11 @@ class WaitAction(BaseAction):
             unit (str): The unit of time for the wait period (e.g., 'Second', 'Minute').
         """
         super().__init__(name)
+
+        if isinstance(count, Expression):
+            count = count.export()
+        if isinstance(unit, Expression):
+            unit = unit.export()
         self.type = "Wait"
         self.interval = {}
         self.interval["count"] = count

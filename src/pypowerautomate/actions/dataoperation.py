@@ -1,4 +1,6 @@
 from typing import List, Dict
+
+from pypowerautomate.actions.expression import Expression
 from .base import BaseAction
 
 class TableFormat:
@@ -14,7 +16,7 @@ class SelectAction(BaseAction):
     Defines a selection action similar to the `map` function, transforming an input array or list into a new structure based on specified key-value pairs.
     """
 
-    def __init__(self, name: str, inputs: List | str, key: str|None = None, value: str|None = None, select: str|None = None):
+    def __init__(self, name: str, inputs: List | str|Expression, key: str|Expression|None = None, value: str|Expression|None = None, select: str|Expression|None = None):
         """
         Initializes a new instance of SelectAction.
 
@@ -27,6 +29,14 @@ class SelectAction(BaseAction):
         """
         super().__init__(name)
         self.type = "Select"
+        if isinstance(inputs, Expression):
+            inputs = inputs.export()
+        if isinstance(key, Expression):
+            key = key.export()
+        if isinstance(value, Expression):
+            value = value.export()
+        if isinstance(select, Expression):
+            select = select.export()
         self.inputs = {"from": inputs, "select": {key: value} if key and value else select}
 
     def export(self) -> Dict:
@@ -45,7 +55,7 @@ class CreateTableAction(BaseAction):
     Defines an action to create a table from an array of dictionaries or an expression that evaluates to such an array, formatted as CSV or HTML.
     """
 
-    def __init__(self, name: str, inputs: List[Dict] | str, format: str):
+    def __init__(self, name: str, inputs: List[Dict] | str|Expression, format: str|Expression):
         """
         Initializes a new instance of CreateTableAction.
 
@@ -56,6 +66,10 @@ class CreateTableAction(BaseAction):
         """
         super().__init__(name)
         self.type = "Table"
+        if isinstance(inputs, Expression):
+            inputs = inputs.export()
+        if isinstance(format, Expression):
+            format = format.export()
         self.inputs = {"from": inputs, "format": format}
 
     def export(self) -> Dict:
@@ -74,7 +88,7 @@ class ComposeAction(BaseAction):
     Defines an action to compose data into a specified structure, typically used for constructing new data objects.
     """
 
-    def __init__(self, name: str, inputs: List | Dict | str):
+    def __init__(self, name: str, inputs: List | Dict | str|Expression):
         """
         Initializes a new instance of ComposeAction.
 
@@ -84,6 +98,8 @@ class ComposeAction(BaseAction):
         """
         super().__init__(name)
         self.type = "Compose"
+        if isinstance(inputs, Expression):
+            inputs = inputs.export()
         self.inputs = inputs
 
     def export(self) -> Dict:
@@ -102,7 +118,7 @@ class FilterArrayAction(BaseAction):
     Defines an action to filter elements of an array based on a specified condition, similar to the `filter` function.
     """
 
-    def __init__(self, name: str, inputs: List | str, where: str):
+    def __init__(self, name: str, inputs: List | str|Expression, where: str|Expression):
         """
         Initializes a new instance of FilterArrayAction.
 
@@ -113,6 +129,10 @@ class FilterArrayAction(BaseAction):
         """
         super().__init__(name)
         self.type = "Query"
+        if isinstance(inputs, Expression):
+            inputs = inputs.export()
+        if isinstance(where, Expression):
+            where = where.export()
         self.inputs = {"from": inputs, "where": where}
 
     def export(self) -> Dict:
@@ -131,7 +151,7 @@ class JoinAction(BaseAction):
     Defines an action to concatenate elements of an array into a single string, separated by a specified delimiter.
     """
 
-    def __init__(self, name: str, inputs: List | str, join_with: str):
+    def __init__(self, name: str, inputs: List | str|Expression, join_with: str|Expression):
         """
         Initializes a new instance of JoinAction.
 
@@ -142,6 +162,10 @@ class JoinAction(BaseAction):
         """
         super().__init__(name)
         self.type = "Join"
+        if isinstance(inputs, Expression):
+            inputs = inputs.export()
+        if isinstance(join_with, Expression):
+            join_with = join_with.export()
         self.inputs = {"from": inputs, "joinWith": join_with}
 
     def export(self) -> Dict:
@@ -160,7 +184,7 @@ class ParseJSONAction(BaseAction):
     Defines an action to parse JSON based on a given schema
     """
 
-    def __init__(self, name: str, content: str, schema: dict):
+    def __init__(self, name: str, content: str|Expression, schema: dict):
         """
         Initializes a new instance of ParseJSON.
 
@@ -171,6 +195,8 @@ class ParseJSONAction(BaseAction):
         """
         super().__init__(name)
         self.type = "ParseJSON"
+        if isinstance(content, Expression):
+            content = content.export()
         self.inputs = {"content": content, "schema": schema}
 
     def export(self) -> Dict:

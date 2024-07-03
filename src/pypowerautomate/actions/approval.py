@@ -1,4 +1,6 @@
 from typing import Dict
+
+from .expression import Expression
 from .base import BaseAction
 
 class StartAndWaitForAnApprovalAction(BaseAction):
@@ -15,7 +17,7 @@ class StartAndWaitForAnApprovalAction(BaseAction):
         "operationId": "StartAndWaitForAnApproval",
     }
 
-    def __init__(self, name: str, email: str):
+    def __init__(self, name: str, email: str|Expression):
         """
         Initializes a new instance of the StartAndWaitForAnApprovalAction.
 
@@ -25,6 +27,8 @@ class StartAndWaitForAnApprovalAction(BaseAction):
         """
         super().__init__(name)
         self.type = "OpenApiConnectionWebhook"
+        if isinstance(email, Expression):
+            email = email.export()
         self.email: str = email
         self.title = "PyPowerAutomate Flow"
 
@@ -70,7 +74,7 @@ class WaitForAnApprovalAction(BaseAction):
         "operationId": "WaitForAnApproval",
     }
 
-    def __init__(self, name: str, approval_name: str):
+    def __init__(self, name: str, approval_name: str|Expression):
         """
         Initializes a new instance of the WaitForAnApprovalAction.
 
@@ -80,6 +84,8 @@ class WaitForAnApprovalAction(BaseAction):
         """
         super().__init__(name)
         self.type = "OpenApiConnectionWebhook"
+        if isinstance(approval_name, Expression):
+            approval_name = approval_name.export()
         self.approval_name: str = approval_name
 
     def export(self) -> Dict:

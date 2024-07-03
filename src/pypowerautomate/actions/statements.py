@@ -54,7 +54,7 @@ class IfStatement(BaseAction):
         if type(self.condition) is Condition:
             d["expression"] = self.condition.export()
         elif type(self.condition) is Expression:
-            d["expression"] = self.condition.export(True)
+            d["expression"] = self.condition.export_in_if()
 
         if self.true_actions:
             d["actions"] = self.true_actions.export()
@@ -76,9 +76,13 @@ class ForeachStatement(BaseAction):
         foreach (str): The variable to iterate over.
     """
 
-    def __init__(self, name: str, foreach: str):
+    def __init__(self, name: str, foreach: str|Expression):
         super().__init__(name)
         self.type: str = "Foreach"
+
+        if isinstance(foreach, Expression):
+            foreach = foreach.export()
+
         self.foreach: str = foreach
         self.actions: Actions|None = None
 
@@ -102,6 +106,10 @@ class ForeachStatement(BaseAction):
         d["metadata"] = self.metadata
         d["type"] = self.type
         d["runAfter"] = self.runafter
+        
+        if isinstance(self.foreach, Expression):
+            self.foreach = self.foreach.export()
+
         d["foreach"] = self.foreach
         if self.actions != None:
             d["actions"] = self.actions.export()
@@ -120,6 +128,7 @@ class ScopeStatement(BaseAction):
     def __init__(self, name: str, actions: Actions | RawActions):
         super().__init__(name)
         self.type: str = "Scope"
+
         self.actions: Actions | RawActions = actions
 
     def export(self) -> Dict:
@@ -148,9 +157,13 @@ class DoUntilStatement(BaseAction):
         limit_count (int, optional): The maximum number of iterations to perform. Defaults to 60.
     """
 
-    def __init__(self, name: str, actions: Actions, expression: str, limit_count: int = 60):
+    def __init__(self, name: str, actions: Actions, expression: str|Expression, limit_count: int = 60):
         super().__init__(name)
         self.type: str = "Until"
+
+        if isinstance(expression, Expression):
+            expression = expression.export()
+
         self.actions: Actions = actions
         self.limit = {
             "count": limit_count,
@@ -170,6 +183,7 @@ class DoUntilStatement(BaseAction):
         d["type"] = self.type
         d["runAfter"] = self.runafter
         d["actions"] = self.actions.export()
+
         d["expression"] = self.expression
         d["limit"] = self.limit
         return d
@@ -183,14 +197,19 @@ class SwitchStatement(BaseAction):
         expression (str): The expression to be evaluated to determine which path to take.
     """
 
-    def __init__(self, name: str, expression: str):
+    def __init__(self, name: str, expression: str|Expression):
         super().__init__(name)
+
         self.type: str = "Switch"
+
+        if isinstance(expression, Expression):
+            expression = expression.export()
+
         self.expression: str = expression
         self.cases: Actions = Actions()
         self.used_names: list[str] = [] # Used case names are only local to each switch statement, unlike with actions.
-        self.used_cases: list[int|str|None] = []
-        self.default_case = CaseStatement("default", None, Actions()) # type: ignore
+        self.used_cases: list[int|str] = []
+        self.default_case = DefaultCaseStatement(Actions())
 
     def add_case(self, case_statement: 'CaseStatement'):
         if case_statement.expression in self.used_cases:
@@ -224,9 +243,10 @@ class CaseStatement(BaseAction):
         expression (int|str): The expression to test against the parent Switch statement
         actions (Actions): The actions to take if this case is used
     """
-    def __init__(self, name: str, expression: int|str, actions: Actions):
+    def __init__(self, name: str, expression: int|str|Expression, actions: Actions):
         super().__init__(name)
-
+        if isinstance(expression, Expression):
+            expression = expression.export()
         self.expression = expression
         self.actions = actions
 

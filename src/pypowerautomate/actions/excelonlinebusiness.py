@@ -1,7 +1,14 @@
+from enum import Enum
 from typing import Dict
+
+from .expression import Expression
 from .base import BaseAction
 
-DATETIME_FORMAT = set([None, "Serial Number", "ISO 8601"])
+class DATETIME_FORMAT(str, Enum):
+    serial_number = "Serial Number"
+    iso_8601 = "ISO 8601"
+
+# DATETIME_FORMAT = set([None, "Serial Number", "ISO 8601"])
 
 class ExcelOnlineGetTables(BaseAction):
     connection_host = {
@@ -10,7 +17,7 @@ class ExcelOnlineGetTables(BaseAction):
         "apiId": "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness"
     }
 
-    def __init__(self, name: str, location: str, documentLibrary: str, file: str):
+    def __init__(self, name: str, location: str|Expression, documentLibrary: str|Expression, file: str|Expression):
         """
         Initializes a new Get Tables action with specified parameters.
 
@@ -27,7 +34,12 @@ class ExcelOnlineGetTables(BaseAction):
         """
         super().__init__(name)
         self.type = "OpenApiConnection"
-
+        if isinstance(location, Expression):
+            location = location.export()
+        if isinstance(documentLibrary, Expression):
+            documentLibrary = documentLibrary.export()
+        if isinstance(file, Expression):
+            file = file.export()
         self.location: str = location
         self.documentLibrary: str = documentLibrary
         self.file: str = file
@@ -64,7 +76,7 @@ class ExcelOnlineGetRow(BaseAction):
         "apiId": "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness"
     }
 
-    def __init__(self, name: str, location: str, documentLibrary: str, file: str, table: str, keyColumn: str, keyValue: str, dateTimeFormat: str|None = None):
+    def __init__(self, name: str, location: str|Expression, documentLibrary: str|Expression, file: str|Expression, table: str|Expression, keyColumn: str|Expression, keyValue: str|Expression, dateTimeFormat: str|Expression|None = None):
         """
         Initializes a new Get Tables action with specified parameters.
 
@@ -84,6 +96,20 @@ class ExcelOnlineGetRow(BaseAction):
         """
         super().__init__(name)
         self.type = "OpenApiConnection"
+        if isinstance(location, Expression):
+            location = location.export()
+        if isinstance(documentLibrary, Expression):
+            documentLibrary = documentLibrary.export()
+        if isinstance(file, Expression):
+            file = file.export()
+        if isinstance(table, Expression):
+            table = table.export()
+        if isinstance(keyColumn, Expression):
+            keyColumn = keyColumn.export()
+        if isinstance(keyValue, Expression):
+            keyValue = keyValue.export()
+        if isinstance(dateTimeFormat, Expression):
+            dateTimeFormat = dateTimeFormat.export()
 
         self.location: str = location
         self.documentLibrary: str = documentLibrary
@@ -92,8 +118,8 @@ class ExcelOnlineGetRow(BaseAction):
         self.keyColumn: str = keyColumn
         self.keyValue: str = keyValue
 
-        if dateTimeFormat not in DATETIME_FORMAT:
-            raise ValueError(f"Unsupported DateTime format type {dateTimeFormat} in action {name}. Must be one of the following: {DATETIME_FORMAT}")
+        # if dateTimeFormat not in DATETIME_FORMAT:
+        #     raise ValueError(f"Unsupported DateTime format type {dateTimeFormat} in action {name}. Must be one of the following: {DATETIME_FORMAT}")
 
         self.dateTimeFormat: str|None = dateTimeFormat
 
