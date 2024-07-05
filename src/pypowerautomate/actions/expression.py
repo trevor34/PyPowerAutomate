@@ -109,12 +109,12 @@ class LiteralExpression(Expression):
 
         return out
 
-import json
-b = SubscriptExpression(SubscriptExpression(SubscriptExpression(Expression("sub", 1, 2), 3), 4), 5)
+# import json
+# b = SubscriptExpression(SubscriptExpression(SubscriptExpression(Expression("sub", 1, 2), 3), 4), 5)
 
-e = Expression("and", Expression("or", Expression("and",
-    Expression("not", Expression("equals", "te'st", 0)),
-    Expression("add", b, 6)), Expression("startsWith", Expression("concat", 7, "te'st"), "eee")
-), Expression(""))
-f = LiteralExpression(False)
-print(json.dumps(e.export_in_if()))
+# e = Expression("and", Expression("or", Expression("and",
+#     Expression("not", Expression("equals", "te'st", 0)),
+#     Expression("add", b, 6)), Expression("startsWith", Expression("concat", 7, "te'st"), "eee")
+# ), Expression(""))
+# f = LiteralExpression("Hi")
+# print(json.dumps(f.export_in_if()))
