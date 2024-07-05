@@ -106,7 +106,7 @@ class ForeachStatement(BaseAction):
         d["metadata"] = self.metadata
         d["type"] = self.type
         d["runAfter"] = self.runafter
-        
+
         if isinstance(self.foreach, Expression):
             self.foreach = self.foreach.export()
 

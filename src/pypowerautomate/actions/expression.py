@@ -1,4 +1,4 @@
-from typing import cast
+from typing import Literal, cast
 
 
 if_operators = ["and", "or", "not", "contains", "equals", "greater", "greaterOrEquals", "less", "lessOrEquals", "startsWith", "endsWith"]
@@ -16,7 +16,7 @@ class Expression:
     def export_in_if(self):
         if self.operator not in if_operators:
             return self.export()
-        
+
         out = {self.operator: []}
         if self.operator == "not":
             out = {self.operator: self.args[0].export_in_if()}
@@ -25,7 +25,7 @@ class Expression:
                 if isinstance(arg, Expression):
                     out[self.operator].append(arg.export_in_if())
                 else:
-                    out[self.operator].append(arg)
+                    out[self.operator].append(LiteralExpression(arg).export_in_if())
 
         return out
 
@@ -42,10 +42,8 @@ class Expression:
         for arg in self.args:
             if isinstance(arg, Expression):
                 out_args.append(arg.export(top))
-            elif type(arg) is str:
-                out_args.append("'" + arg.replace("'", "''") + "'")
             else:
-                out_args.append(str(arg))
+                out_args.append(LiteralExpression(arg).export(False))
 
         out += ",".join(out_args) + ")"
 
@@ -66,14 +64,12 @@ class SubscriptExpression(Expression):
             out = "@"
             top = False
 
-        out += str(self.expression.export(top))
+        out += self.expression.export(top)
         for arg in self.args:
             if isinstance(arg, Expression):
-                out += "[" + str(arg.export(top)) + "]"
-            elif type(arg) is str:
-                out += "['" + arg.replace("'", "''") + "']"
+                out += "[" + arg.export(top) + "]"
             else:
-                out += "[" + str(arg) + "]"
+                out += "[" + LiteralExpression(arg).export(False) + "]"
 
         return out
 
@@ -82,27 +78,43 @@ class LiteralExpression(Expression):
         self.literal = literal
 
     def export_in_if(self):
-        return self.export(True)
+        if type(self.literal) is str:
+            return self.literal
+        return self.literal_export()
 
     def export(self, top=True):
+        if top:
+            return self.literal_export(top)
+
+        return str(self.literal_export(top))
+
+    def literal_export(self, top=True):
         out = ""
         if top:
+            if type(self.literal) is str:
+                return self.literal
+
             out = "@"
             top = False
 
+
         if self.literal is None:
             out += "null"
+        elif type(self.literal) is bool:
+            out += "true" if self.literal else "false"
+        elif type(self.literal) is str:
+            out += "'" + self.literal.replace("'", "''") + "'"
         else:
             out = self.literal
 
         return out
 
-# import json
-# b = SubscriptExpression(SubscriptExpression(SubscriptExpression(Expression("sub"), 4), 5), 6)
+import json
+b = SubscriptExpression(SubscriptExpression(SubscriptExpression(Expression("sub", 1, 2), 3), 4), 5)
 
-# e = Expression("and",
-#     Expression("not", Expression("equals", "test", 2)),
-#     Expression("add", b, 3)
-# )
-# f = LiteralExpression(False)
-# print(json.dumps(f.export_in_if()))
+e = Expression("and", Expression("or", Expression("and",
+    Expression("not", Expression("equals", "te'st", 0)),
+    Expression("add", b, 6)), Expression("startsWith", Expression("concat", 7, "te'st"), "eee")
+), Expression(""))
+f = LiteralExpression(False)
+print(json.dumps(e.export_in_if()))

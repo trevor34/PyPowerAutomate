@@ -15,4 +15,4 @@ from .outlook365 import *
 from .flows import *
 from .powerapps import *
 from .excelonlinebusiness import *
-from .expression import Expression, SubscriptExpression
+from .expression import Expression, SubscriptExpression, LiteralExpression

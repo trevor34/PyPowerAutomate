@@ -23,7 +23,7 @@ class Outlook365SendAnEmailV2(BaseAction):
             body = body.export()
         if isinstance(importance, Expression):
             importance = importance.export()
-    
+
         self.to: str = to
         self.subject: str = subject
         self.body: str = body
