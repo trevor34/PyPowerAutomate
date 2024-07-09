@@ -5,7 +5,7 @@ from .statements import IfStatement, ForeachStatement, ScopeStatement, DoUntilSt
 from .http import HttpAction
 from .time import AddToTimeAction, WaitAction
 from .teams import *
-from .variable import InitVariableAction, VariableTypes, SetVariableAction, AppendStringToVariableAction, IncrementVariableAction, DecrementVariableAction
+from .variable import InitVariableAction, VariableTypes, SetVariableAction, AppendStringToVariableAction, AppendToArrayVariableAction, IncrementVariableAction, DecrementVariableAction
 from .flowmanagement import CreateFlowAction, DeleteFlowAction, ListConnectionsAction, ListUserEnvironmentsAction
 from .dataoperation import SelectAction, CreateTableAction, ComposeAction, FilterArrayAction, JoinAction
 from .approval import *
@@ -15,4 +15,4 @@ from .outlook365 import *
 from .flows import *
 from .powerapps import *
 from .excelonlinebusiness import *
-from .expression import Expression, SubscriptExpression, LiteralExpression
+from .expression import Expression, SubscriptExpression, LiteralExpression, ArrayExpression, ObjectExpression

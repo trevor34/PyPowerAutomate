@@ -141,6 +141,44 @@ class AppendStringToVariableAction(BaseAction):
         d["inputs"] = self.inputs
         return d
 
+class AppendToArrayVariableAction(BaseAction):
+    """
+    Class to define an action that appends a value to the existing array variable.
+    """
+
+    def __init__(self, name: str, var_name: str, value):
+        """
+        Initializes a new instance of AppendToArrayVariableAction.
+
+        Args:
+            name (str): The name of the action.
+            var_name (str): The name of the string variable to be appended to.
+            value (str): The string value to append.
+        """
+        super().__init__(name)
+        if isinstance(value, Expression):
+            value = value.export()
+
+        self.type = "AppendToArrayVariable"
+        self.inputs = {
+            "name": var_name,
+            "value": value
+        }
+
+    def export(self) -> Dict:
+        """
+        Exports the current state and parameters of this action in a dictionary format.
+
+        Returns:
+            Dict: A dictionary containing action details and inputs for serialization.
+        """
+        d = {}
+        d["metadata"] = self.metadata
+        d["type"] = self.type
+        d["runAfter"] = self.runafter
+        d["inputs"] = self.inputs
+        return d
+
 
 class IncrementVariableAction(BaseAction):
     """

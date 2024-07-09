@@ -80,7 +80,7 @@ class LiteralExpression(Expression):
     def export_in_if(self):
         if type(self.literal) is str:
             return self.literal
-        return self.literal_export()
+        return self.literal_export(True)
 
     def export(self, top=True):
         if top:
@@ -103,18 +103,64 @@ class LiteralExpression(Expression):
         elif type(self.literal) is bool:
             out += "true" if self.literal else "false"
         elif type(self.literal) is str:
-            out += "'" + self.literal.replace("'", "''") + "'"
+            out = "'" + self.literal.replace("'", "''") + "'"
         else:
             out = self.literal
 
         return out
+    
+class ArrayExpression(Expression):
+    def __init__(self, array: list):
+        self.array = array
+
+    def export_in_if(self):
+        return self.export(True)
+
+    def export(self, top=True):
+        out_array = []
+        for item in self.array:
+            if isinstance(item, Expression):
+                out_array.append(item.export(True))
+            else:
+                out_array.append(LiteralExpression(item).export(True))
+
+        return out_array
+
+class ObjectExpression(Expression):
+    def __init__(self, object: dict):
+        self.object = object
+
+    def export_in_if(self):
+        return self.export(True)
+
+    def export(self, top=True):
+        out_dict = {}
+
+        arr = self.object.items()
+        for a in arr:
+            key = ""
+            value = ""
+            if isinstance(a[0], Expression):
+                key = str(a[0].export(True))
+            else:
+                key = LiteralExpression(a[0]).export(True)
+            
+            if isinstance(a[1], Expression):
+                value = a[1].export(True)
+            else:
+                value = LiteralExpression(a[1]).export(True)
+            out_dict[key] = value
+        
+        return out_dict
 
 # import json
 # b = SubscriptExpression(SubscriptExpression(SubscriptExpression(Expression("sub", 1, 2), 3), 4), 5)
 
 # e = Expression("and", Expression("or", Expression("and",
-#     Expression("not", Expression("equals", "te'st", 0)),
+#     Expression("not", Expression("equals", "te'st", LiteralExpression(True))),
 #     Expression("add", b, 6)), Expression("startsWith", Expression("concat", 7, "te'st"), "eee")
-# ), Expression(""))
+# ), Expression("a", 3, 5))
 # f = LiteralExpression("Hi")
-# print(json.dumps(f.export_in_if()))
+
+# j = ObjectExpression({e: ArrayExpression(["Hi", Expression("hello", "yes", "no"), "maybe", 33, ObjectExpression({44: ArrayExpression([444, Expression("e", 2)])})])})
+# print(json.dumps(e.export_in_if()))
