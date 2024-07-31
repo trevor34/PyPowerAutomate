@@ -2,7 +2,7 @@ import json
 from typing import List, Dict, Tuple, Union
 from copy import deepcopy
 
-from .base import BaseAction, SkeltonNode
+from .base import BaseAction, SkeletonNode
 from .variable import InitVariableAction
 
 
@@ -22,7 +22,7 @@ class Actions:
     used_names = []
 
     def __init__(self, is_root: bool = False) -> None:
-        self.root_node = SkeltonNode("root")
+        self.root_node = SkeletonNode("root")
         self.last_update_node = self.root_node
         self.is_root_actions: bool = is_root
         self.nodes: Dict[str, BaseAction] = {"root": self.root_node}
@@ -71,7 +71,7 @@ class Actions:
         self.last_update_node = new_action
         self.nodes[new_action.action_name] = new_action
 
-    def add_after(self, new_action: BaseAction, prev_action: List[BaseAction|SkeltonNode|None]|BaseAction|SkeltonNode|None, force_exec: bool = False, exec_if_failed: bool = False):
+    def add_after(self, new_action: BaseAction, prev_action: List[BaseAction|SkeletonNode|None]|BaseAction|SkeletonNode|None, force_exec: bool = False, exec_if_failed: bool = False):
         """
         Adds a new action immediately after a specified action in the tree.
 
@@ -174,16 +174,16 @@ class Actions:
         if isinstance(rhs_actions, Actions):
             new_actions = self.clone()
             new_actions.is_root_actions |= rhs_actions.is_root_actions
-            stack: List[Tuple[BaseAction, SkeltonNode | BaseAction | None]] = [(rhs_actions.root_node, None)]
+            stack: List[Tuple[BaseAction, SkeletonNode | BaseAction | None]] = [(rhs_actions.root_node, None)]
             while stack:
                 child, parent = stack.pop()
                 new_child = child.clone()
                 for next_node in child.next_nodes:
-                    if isinstance(new_child, SkeltonNode):
+                    if isinstance(new_child, SkeletonNode):
                         stack.append((next_node, new_actions.last_update_node))
                     else:
                         stack.append((next_node, new_child))
-                if not isinstance(new_child, SkeltonNode):
+                if not isinstance(new_child, SkeletonNode):
                     new_actions.add_after(new_child, [parent])
             return new_actions
         elif isinstance(rhs_actions, BaseAction):
@@ -201,7 +201,7 @@ class Actions:
         """
         d = {}
         for node in self.nodes.values():
-            if isinstance(node, SkeltonNode):
+            if isinstance(node, SkeletonNode):
                 continue
             d[node.action_name] = node.export()
         return d

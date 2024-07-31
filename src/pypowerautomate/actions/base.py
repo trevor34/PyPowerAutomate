@@ -107,7 +107,7 @@ class BaseAction:
             state_list = [State.Succeeded, State.Failed, State.Skipped, State.TimedOut]
         elif exec_if_failed:
             state_list = [State.Failed]
-        if not isinstance(parent_node, SkeltonNode):
+        if not isinstance(parent_node, SkeletonNode):
         #     self.runafter = {}
         # else:
             self.runafter[parent_node.action_name] = state_list
@@ -135,13 +135,13 @@ class BaseAction:
         if isinstance(rhs_actions, Actions):
             new_actions = Actions(rhs_actions.is_root_actions)
             new_actions.append(self)
-            stack: list[tuple[BaseAction|SkeltonNode, BaseAction|SkeltonNode|None]] = [(rhs_actions.root_node, None)]
+            stack: list[tuple[BaseAction|SkeletonNode, BaseAction|SkeletonNode|None]] = [(rhs_actions.root_node, None)]
             while stack:
                 child, parent = stack.pop()
                 new_child = child.clone()
                 for next_node in child.next_nodes:
-                    stack.append((next_node, new_child if not isinstance(new_child, SkeltonNode) else new_actions.last_update_node))
-                if not isinstance(new_child, SkeltonNode):
+                    stack.append((next_node, new_child if not isinstance(new_child, SkeletonNode) else new_actions.last_update_node))
+                if not isinstance(new_child, SkeletonNode):
                     new_actions.add_after(new_child, [parent])
             return new_actions
         elif isinstance(rhs_actions, BaseAction):
@@ -160,7 +160,7 @@ class BaseAction:
         return f"ActionNode:{self.action_name}({self.type})[id:{hex(id(self))}]"
 
 
-class SkeltonNode(BaseAction):
+class SkeletonNode(BaseAction):
     """
     A special class designed for use as the root node in the Actions class tree structure.
     Facilitates easier handling of the Actions tree structure.
@@ -171,7 +171,7 @@ class SkeltonNode(BaseAction):
 
     def __init__(self, name: str):
         """
-        Initializes the SkeltonNode with a specific name, primarily used as a root node.
+        Initializes the SkeletonNode with a specific name, primarily used as a root node.
 
         Args:
             name (str): The name of the skeleton node.
