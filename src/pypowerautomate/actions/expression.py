@@ -1,4 +1,5 @@
-from typing import Literal, cast
+import json
+from typing import Literal
 
 
 if_operators = ["and", "or", "not", "contains", "equals", "greater", "greaterOrEquals", "less", "lessOrEquals", "startsWith", "endsWith"]
@@ -19,7 +20,12 @@ class Expression:
 
         out = {self.operator: []}
         if self.operator == "not":
-            out = {self.operator: self.args[0].export_in_if()}
+            child_operator = self.args[0].operator
+
+            if child_operator and child_operator not in if_operators:
+                out = self.export()
+            else:
+                out = {self.operator: self.args[0].export_in_if()}
         else:
             for arg in self.args:
                 if isinstance(arg, Expression):
@@ -29,7 +35,7 @@ class Expression:
 
         return out
 
-    def export(self, top = True):
+    def export(self, top = True) -> str | list | dict:
         out = ""
 
         if top:
@@ -64,10 +70,10 @@ class SubscriptExpression(Expression):
             out = "@"
             top = False
 
-        out += self.expression.export(top)
+        out += str(self.expression.export(top))
         for arg in self.args:
             if isinstance(arg, Expression):
-                out += "[" + arg.export(top) + "]"
+                out += "[" + str(arg.export(top)) + "]"
             else:
                 out += "[" + LiteralExpression(arg).export(False) + "]"
 
@@ -78,8 +84,6 @@ class LiteralExpression(Expression):
         self.literal = literal
 
     def export_in_if(self):
-        if type(self.literal) is str:
-            return self.literal
         return self.literal_export(True)
 
     def export(self, top=True):
@@ -91,7 +95,7 @@ class LiteralExpression(Expression):
     def literal_export(self, top=True):
         out = ""
         if top:
-            if type(self.literal) is str:
+            if type(self.literal) is str or self.literal is None:
                 return self.literal
 
             out = "@"
@@ -108,8 +112,8 @@ class LiteralExpression(Expression):
             out = self.literal
 
         return out
-    
-class ArrayExpression(Expression):
+
+class ArrayExpression(LiteralExpression):
     def __init__(self, array: list):
         self.array = array
 
@@ -124,10 +128,23 @@ class ArrayExpression(Expression):
             else:
                 out_array.append(LiteralExpression(item).export(True))
 
+        if not top:
+            out_array = f"array('{json.dumps(out_array)}')"
         return out_array
 
-class ObjectExpression(Expression):
-    def __init__(self, object: dict):
+class KeyValueExpression(LiteralExpression):
+    def __init__(self, key, value):
+        self.key = key
+        self.value = value
+
+    def export_in_if(self):
+        return self.export(True)
+
+    def export(self, top=True):
+        return [self.key, self.value]
+
+class ObjectExpression(LiteralExpression):
+    def __init__(self, object: dict|list[KeyValueExpression]):
         self.object = object
 
     def export_in_if(self):
@@ -136,31 +153,53 @@ class ObjectExpression(Expression):
     def export(self, top=True):
         out_dict = {}
 
-        arr = self.object.items()
+        if type(self.object) is dict:
+            arr = self.object.items()
+        else:
+            arr = [keyvaluepair.export() for keyvaluepair in self.object]
+
         for a in arr:
             key = ""
             value = ""
             if isinstance(a[0], Expression):
-                key = str(a[0].export(True))
+                key = a[0].export(True)
+
+                if top:
+                    key = str(key)
             else:
                 key = LiteralExpression(a[0]).export(True)
-            
+
             if isinstance(a[1], Expression):
                 value = a[1].export(True)
             else:
-                value = LiteralExpression(a[1]).export(True)
+                if not top:
+                    value = a[1]
+                else:
+                    value = LiteralExpression(a[1]).export(True)
             out_dict[key] = value
-        
+
+        if not top:
+            out_dict = f"json('{json.dumps(out_dict)}')"
         return out_dict
 
-# import json
-# b = SubscriptExpression(SubscriptExpression(SubscriptExpression(Expression("sub", 1, 2), 3), 4), 5)
+# a = SubscriptExpression(SubscriptExpression(SubscriptExpression(Expression("sub", 1, 2), 3), 4), 5)
 
-# e = Expression("and", Expression("or", Expression("and",
+# b = Expression("and", Expression("or", Expression("and",
 #     Expression("not", Expression("equals", "te'st", LiteralExpression(True))),
-#     Expression("add", b, 6)), Expression("startsWith", Expression("concat", 7, "te'st"), "eee")
-# ), Expression("a", 3, 5))
-# f = LiteralExpression("Hi")
+#     Expression("add", a, 6)), Expression("startsWith", Expression("concat", 7, "te'st"), "eee")
+# ), Expression("length", "wow"))
+# c = LiteralExpression("Hi")
 
-# j = ObjectExpression({e: ArrayExpression(["Hi", Expression("hello", "yes", "no"), "maybe", 33, ObjectExpression({44: ArrayExpression([444, Expression("e", 2)])})])})
-# print(json.dumps(e.export_in_if()))
+# d = ObjectExpression({"a": c, "c": Expression("length", "e")})
+
+# e = Expression("contains", d, "a")
+
+# f = ObjectExpression({44: ArrayExpression([444, Expression("length", ArrayExpression([1,2,3,ArrayExpression([4,Expression("length", "length")])]))])})
+
+# g = ArrayExpression(["hello", e, LiteralExpression("maybe"), LiteralExpression(33), f])
+
+# j = ObjectExpression({c: g})
+
+# k = SubscriptExpression(ObjectExpression({"a": "b"}), "a")
+
+# print(json.dumps(b.export_in_if()))

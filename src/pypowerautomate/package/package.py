@@ -362,13 +362,13 @@ class Package:
         Args:
             connection_name (str, optional): The name to assign to the connection if it already exists.
         """
-        # Outlook 365 API Settings
+        # Microsoft Forms API Settings
         api = Resource("Microsoft.PowerApps/apis", "Existing", None, "System", "Child", "Microsoft Forms",
                        "https://connectoricons-prod.azureedge.net/releases/v1.0.1686/1.0.1686.3695/microsoftforms/icon.png")
         api.set_api_info(
             "/providers/Microsoft.PowerApps/apis/shared_microsoftforms", "shared_microsoftforms")
 
-        # Setting up Outlook 365 Connection
+        # Setting up Microsoft Forms Connection
         connection = Resource("Microsoft.PowerApps/apis/connections", "Existing", "Existing", "User", "Child", "Microsoft Forms",
                               "https://connectoricons-prod.azureedge.net/releases/v1.0.1686/1.0.1686.3695/microsoftforms/icon.png")
 
@@ -394,13 +394,13 @@ class Package:
         Args:
             connection_name (str, optional): The name to assign to the connection if it already exists.
         """
-        # Outlook 365 API Settings
+        # Excel Online API Settings
         api = Resource("Microsoft.PowerApps/apis", "Existing", None, "System", "Child", "Excel Online (Business)",
                        "https://connectoricons-prod.azureedge.net/releases/v1.0.1680/1.0.1680.3652/excelonlinebusiness/icon.png")
         api.set_api_info(
-            "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness", "shared_microsoftforms")
+            "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness", "shared_excelonlinebusiness")
 
-        # Setting up Outlook 365 Connection
+        # Setting up Excel Online Connection
         connection = Resource("Microsoft.PowerApps/apis/connections", "Existing", "Existing", "User", "Child", "Excel Online (Business)",
                               "https://connectoricons-prod.azureedge.net/releases/v1.0.1680/1.0.1680.3652/excelonlinebusiness/icon.png")
 
@@ -409,7 +409,7 @@ class Package:
 
         # Setting existing connection information
         if connection_name:
-            self.__exist_connections["shared_microsoftforms"] = {
+            self.__exist_connections["shared_excelonlinebusiness"] = {
                 "connectionName": connection_name,
                 "source": "Invoker",
                 "id": "/providers/Microsoft.PowerApps/apis/shared_excelonlinebusiness",

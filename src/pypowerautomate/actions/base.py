@@ -48,7 +48,7 @@ class BaseAction:
         """
         self.action_name: str = name
         self.type: str = ""
-        self.runafter: Dict = {}
+        self.runafter: dict[str, list[str]] = {}
         self.metadata: Dict = {}
         self.next_nodes: Set[BaseAction] = set()
         self.have_parent_node: bool = False

@@ -1,5 +1,4 @@
-
-from typing import Dict
+from typing import Dict, cast
 
 from .expression import Expression
 from .base import BaseAction
@@ -16,13 +15,13 @@ class Outlook365SendAnEmailV2(BaseAction):
         super().__init__(name)
         self.type = "OpenApiConnection"
         if isinstance(to, Expression):
-            to = to.export()
+            to = cast(str, to.export())
         if isinstance(subject, Expression):
-            subject = subject.export()
+            subject = cast(str, subject.export())
         if isinstance(body, Expression):
-            body = body.export()
+            body = cast(str, body.export())
         if isinstance(importance, Expression):
-            importance = importance.export()
+            importance = cast(str, importance.export())
 
         self.to: str = to
         self.subject: str = subject
@@ -336,26 +335,68 @@ class Outlook365GetEmailsV3(BaseAction):
         "operationId": "GetEmailsV3"
     }
 
-    def __init__(self, name: str, folderpath: str, fetchonlyunread: bool, includeattachments: bool, top: int, importance: str, fetchonlywithattachment: bool):
+    def __init__(self, name: str, folderpath: str|Expression|None = None, to_email: str|Expression|None = None, from_email: str|Expression|None = None, fetch_only_unread: str|bool|Expression|None = None, mailbox_address: str|Expression|None = None, include_attachments: str|bool|Expression|None = None, search_query: str|Expression|None = None, top: str|int|Expression|None = None, cc: str|Expression|None = None, to_or_cc: str|Expression|None = None, importance: str|Expression|None = None, fetch_only_with_attachment: str|bool|Expression|None = None, subject_filter: str|Expression|None = None):
         super().__init__(name)
         self.type = "OpenApiConnection"
-        self.folderpath: str = folderpath
-        self.fetchonlyunread: str = str(fetchonlyunread)
-        self.includeattachments: str = str(includeattachments)
-        self.top: int = top
-        self.importance: str = importance
-        self.fetchonlywithattachment: str = str(fetchonlywithattachment)
+
+        if isinstance(folderpath, Expression):
+            folderpath = cast(str, folderpath.export())
+        if isinstance(to_email, Expression):
+            to_email = cast(str, to_email.export())
+        if isinstance(from_email, Expression):
+            from_email = cast(str, from_email.export())
+        if isinstance(fetch_only_unread, Expression):
+            fetch_only_unread = cast(str, fetch_only_unread.export())
+        if isinstance(mailbox_address, Expression):
+            mailbox_address = cast(str, mailbox_address.export())
+        if isinstance(include_attachments, Expression):
+            include_attachments = cast(str, include_attachments.export())
+        if isinstance(search_query, Expression):
+            search_query = cast(str, search_query.export())
+        if isinstance(top, Expression):
+            top = cast(str, top.export())
+        if isinstance(cc, Expression):
+            cc = cast(str, cc.export())
+        if isinstance(to_or_cc, Expression):
+            to_or_cc = cast(str, to_or_cc.export())
+        if isinstance(importance, Expression):
+            importance = cast(str, importance.export())
+        if isinstance(fetch_only_with_attachment, Expression):
+            fetch_only_with_attachment = cast(str, fetch_only_with_attachment.export())
+        if isinstance(subject_filter, Expression):
+            subject_filter = cast(str, subject_filter.export())
+
+        self.folderpath: str|None = folderpath
+        self.to_email: str|None = to_email
+        self.from_email = from_email
+        self.fetch_only_unread: str|None = str(fetch_only_unread) if type(fetch_only_unread) is bool else fetch_only_unread
+        self.mailbox_address: str|None = mailbox_address
+        self.include_attachments: str|None = str(include_attachments) if type(include_attachments) is bool else include_attachments
+        self.search_query: str|None = search_query
+        self.top: str|int|None = top
+        self.cc: str|None = cc
+        self.to_or_cc: str|None = to_or_cc
+        self.importance: str|None = importance
+        self.fetch_only_with_attachment: str|None = str(fetch_only_with_attachment) if type(include_attachments) is bool else include_attachments
+        self.subject_filter: str|None = subject_filter
 
     def export(self) -> Dict:
         inputs = {}
         parameters = {}
 
-        parameters["folderPath"] = self.folderpath
-        parameters["fetchOnlyUnread"] = self.fetchonlyunread
-        parameters["includeAttachments"] = self.includeattachments
-        parameters["top"] = self.top
-        parameters["importance"] = self.importance
-        parameters["fetchOnlyWithAttachment"] = self.fetchonlywithattachment
+        if self.folderpath is not None: parameters["folderPath"] = self.folderpath
+        if self.to_email is not None: parameters["to"] = self.to_email
+        if self.from_email is not None: parameters["from"] = self.from_email
+        if self.fetch_only_unread is not None: parameters["fetchOnlyUnread"] = self.fetch_only_unread
+        if self.mailbox_address is not None: parameters["mailboxAddress"] = self.mailbox_address
+        if self.include_attachments is not None: parameters["includeAttachments"] = self.include_attachments
+        if self.search_query is not None: parameters["searchQuery"] = self.search_query
+        if self.top is not None: parameters["top"] = self.top
+        if self.cc is not None: parameters["cc"] = self.cc
+        if self.to_or_cc is not None: parameters["toOrCc"] = self.to_or_cc
+        if self.importance is not None: parameters["importance"] = self.importance
+        if self.fetch_only_with_attachment is not None: parameters["fetchOnlyWithAttachment"] = self.fetch_only_with_attachment
+        if self.subject_filter is not None: parameters["subjectFilter"] = self.subject_filter
 
         inputs["host"] = Outlook365GetEmailsV3.connection_host
         inputs["parameters"] = parameters
@@ -406,11 +447,20 @@ class Outlook365MoveEmailV2(BaseAction):
         "operationId": "MoveV2"
     }
 
-    def __init__(self, name: str, messageid: str, folderpath: str):
+    def __init__(self, name: str, messageid: str|Expression, folderpath: str|Expression, mailbox_address: str|Expression|None = None):
         super().__init__(name)
         self.type = "OpenApiConnection"
+
+        if isinstance(messageid, Expression):
+            messageid = cast(str, messageid.export())
+        if isinstance(folderpath, Expression):
+            folderpath = cast(str, folderpath.export())
+        if isinstance(mailbox_address, Expression):
+            mailbox_address = cast(str, mailbox_address.export())
+
         self.messageid: str = messageid
         self.folderpath: str = folderpath
+        self.mailbox_address: str|None = mailbox_address
 
     def export(self) -> Dict:
         inputs = {}
@@ -418,6 +468,7 @@ class Outlook365MoveEmailV2(BaseAction):
 
         parameters["messageId"] = self.messageid
         parameters["folderPath"] = self.folderpath
+        parameters["mailboxAddress"] = self.mailbox_address
 
         inputs["host"] = Outlook365MoveEmailV2.connection_host
         inputs["parameters"] = parameters

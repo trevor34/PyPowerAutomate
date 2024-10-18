@@ -1,4 +1,4 @@
-from typing import Dict
+from typing import Dict, cast
 from .base import BaseAction
 from .actions import Actions, RawActions
 from .condition import Condition
@@ -81,7 +81,7 @@ class ForeachStatement(BaseAction):
         self.type: str = "Foreach"
 
         if isinstance(foreach, Expression):
-            foreach = foreach.export()
+            foreach = cast(str, foreach.export())
 
         self.foreach: str = foreach
         self.actions: Actions|None = None
@@ -106,9 +106,6 @@ class ForeachStatement(BaseAction):
         d["metadata"] = self.metadata
         d["type"] = self.type
         d["runAfter"] = self.runafter
-
-        if isinstance(self.foreach, Expression):
-            self.foreach = self.foreach.export()
 
         d["foreach"] = self.foreach
         if self.actions != None:

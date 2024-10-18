@@ -174,7 +174,7 @@ class ManualTrigger(BaseTrigger):
         self.kind = "Button"
         self.inputs = {"schema": {"type": "object", "properties": {}, "required": []}}
 
-    def add_input(self, type: dict, title: str, description: str, required: bool = True, options: list[str] = []):
+    def add_input(self, type: dict, title: str, description: str, required: bool = True, options: list[str]|None = None):
         """
         Adds an input to the manual trigger
 
@@ -200,7 +200,7 @@ class ManualTrigger(BaseTrigger):
         if "format" in type:
             self.inputs["schema"]["properties"][title]["format"] = type["format"]
 
-        if len(options) == 0 and (type == TriggerInputVariableType.dropdown or type == TriggerInputVariableType.multi_select):
+        if options is not None and len(options) == 0 and (type == TriggerInputVariableType.dropdown or type == TriggerInputVariableType.multi_select):
             raise ValueError(f"Input '{title}' of '{self.trigger_name}' must have options. Is Type {type["name"]}.")
 
         if type == TriggerInputVariableType.multi_select:
