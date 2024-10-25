@@ -14,7 +14,7 @@ class Expression:
         self.operator = operator
         self.args = args
 
-    def export_in_if(self):
+    def export_in_if(self) -> str | list | dict:
         if self.operator not in if_operators:
             return self.export()
 
@@ -35,7 +35,7 @@ class Expression:
 
         return out
 
-    def export(self, top = True) -> str | list | dict:
+    def export(self, top = True) -> str|dict|list:
         out = ""
 
         if top:
@@ -63,7 +63,7 @@ class SubscriptExpression(Expression):
     def export_in_if(self):
         return self.export(True)
 
-    def export(self, top=True):
+    def export(self, top=True) -> str:
         out = ""
 
         if top:
@@ -83,10 +83,10 @@ class LiteralExpression(Expression):
     def __init__(self, literal):
         self.literal = literal
 
-    def export_in_if(self):
+    def export_in_if(self) -> str:
         return self.literal_export(True)
 
-    def export(self, top=True):
+    def export(self, top=True) -> str:
         if top:
             return self.literal_export(top)
 
@@ -113,14 +113,14 @@ class LiteralExpression(Expression):
 
         return out
 
-class ArrayExpression(LiteralExpression):
+class ArrayExpression(Expression):
     def __init__(self, array: list):
         self.array = array
 
     def export_in_if(self):
         return self.export(True)
 
-    def export(self, top=True):
+    def export(self, top=True) -> str | list:
         out_array = []
         for item in self.array:
             if isinstance(item, Expression):
@@ -132,25 +132,25 @@ class ArrayExpression(LiteralExpression):
             out_array = f"array('{json.dumps(out_array)}')"
         return out_array
 
-class KeyValueExpression(LiteralExpression):
+class KeyValueExpression(Expression):
     def __init__(self, key, value):
         self.key = key
         self.value = value
 
-    def export_in_if(self):
+    def export_in_if(self) -> list:
         return self.export(True)
 
-    def export(self, top=True):
+    def export(self, top=True) -> list:
         return [self.key, self.value]
 
-class ObjectExpression(LiteralExpression):
+class ObjectExpression(Expression):
     def __init__(self, object: dict|list[KeyValueExpression]):
         self.object = object
 
-    def export_in_if(self):
+    def export_in_if(self) -> str|dict:
         return self.export(True)
 
-    def export(self, top=True):
+    def export(self, top=True) -> str|dict:
         out_dict = {}
 
         if type(self.object) is dict:
@@ -181,6 +181,25 @@ class ObjectExpression(LiteralExpression):
         if not top:
             out_dict = f"json('{json.dumps(out_dict)}')"
         return out_dict
+
+class FormatStringExpression(Expression):
+    def __init__(self, *expressions):
+        self.expressions = expressions
+
+    def export_in_if(self):
+        return self.export(True)
+
+    def export(self, top=True) -> str:
+        out = ""
+        for expression in self.expressions:
+            if isinstance(expression, LiteralExpression):
+                out += expression.export(True)
+            elif isinstance(expression, Expression):
+                out += "@{" + expression.export(False) + "}" # type: ignore
+            else:
+                out += LiteralExpression(expression).export(False)
+
+        return out
 
 # a = SubscriptExpression(SubscriptExpression(SubscriptExpression(Expression("sub", 1, 2), 3), 4), 5)
 
