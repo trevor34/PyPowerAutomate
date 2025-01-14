@@ -115,7 +115,7 @@ class RecurrenceTrigger(BaseTrigger):
         recurrence (Dict): Dictionary holding recurrence schedule details.
     """
 
-    def __init__(self, name: str):
+    def __init__(self, name: str, frequency: str, interval: int):
         """
         Initializes a new instance of the RecurrenceTrigger class.
 
@@ -124,7 +124,7 @@ class RecurrenceTrigger(BaseTrigger):
         """
         super().__init__(name)
         self.type = "Recurrence"
-        self.recurrence = {}
+        self.recurrence = {"frequency": frequency, "interval": interval}
 
     def set_schedule(self, frequency: str, interval: int):
         """
@@ -149,7 +149,6 @@ class RecurrenceTrigger(BaseTrigger):
         d["type"] = self.type
         d["recurrence"] = self.recurrence
         return d
-
 
 class ManualTrigger(BaseTrigger):
     """

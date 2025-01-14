@@ -418,6 +418,38 @@ class Package:
         self.__apis.append(api)
         self.__connections.append(connection)
         self.__api_connection_map[connection] = api
+    
+    def set_sql_server_connector(self, connection_name: str|None = None):
+        """
+        Sets up a connector for the SQL Server API with optional connection naming.
+
+        Args:
+            connection_name (str, optional): The name to assign to the connection if it already exists.
+        """
+        # Excel Online API Settings
+        api = Resource("Microsoft.PowerApps/apis", "Existing", None, "System", "Child", "SQL Server",
+                       "https://connectoricons-prod.azureedge.net/releases/v1.0.1715/1.0.1715.3906/sql/icon.png")
+        api.set_api_info(
+            "/providers/Microsoft.PowerApps/apis/shared_sql", "shared_sql")
+
+        # Setting up Excel Online Connection
+        connection = Resource("Microsoft.PowerApps/apis/connections", "Existing", "Existing", "User", "Child", "SQL Server",
+                              "https://connectoricons-prod.azureedge.net/releases/v1.0.1715/1.0.1715.3906/sql/icon.png")
+
+        # Setting dependency of connection
+        connection.set_dependencies([api])
+
+        # Setting existing connection information
+        if connection_name:
+            self.__exist_connections["shared_sql"] = {
+                "connectionName": connection_name,
+                "source": "Invoker",
+                "id": "/providers/Microsoft.PowerApps/apis/shared_sql",
+                "tier": "NotSpecified"
+            }
+        self.__apis.append(api)
+        self.__connections.append(connection)
+        self.__api_connection_map[connection] = api
 
     def export_solution_manifest(self) -> dict:
         """
